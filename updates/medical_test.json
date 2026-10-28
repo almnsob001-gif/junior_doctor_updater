@@ -1,0 +1,6 @@
+{
+  "Test Emergency Topic": [
+    ["01 — DEFINITION", "info", "This is a test topic downloaded from the internet!"],
+    ["02 — TREATMENT", "success", "This update system works perfectly."]
+  ]
+}
