@@ -22,7 +22,7 @@ import data_protocols
 import data_calculators
 import data_pediatric_calculators
 import data_extensions
-import data_updater  # <--- تم إضافة ملف التحديثات هنا
+import data_updater  # <--- تم إضافة ملف التحديثات
 
 from kivy.app import App
 from kivy.metrics import dp
@@ -238,6 +238,7 @@ class ModernHeader(BoxLayout):
 # ================= APP CLASS =================
 class JuniorDoctor(App):
     def build(self):
+        # --- إجبار أندرويد على الوضع العمودي ---
         from kivy.utils import platform
         if platform == 'android':
             try:
@@ -246,6 +247,35 @@ class JuniorDoctor(App):
                 PythonActivity.mActivity.setRequestedOrientation(1)
             except Exception:
                 pass
+        # ---------------------------------------
+
+        # ================= نظام التحديثات التلقائية =================
+        # 1. التحقق من التحديثات وحفظها في مجلد التطبيق الآمن
+        data_updater.check_for_updates(self.user_data_dir, current_version=1.0)
+        
+        # 2. تحميل البيانات
+        downloaded_topics = data_updater.load_downloaded_data(self.user_data_dir)
+        
+        # 3. دمج المواضيع الجديدة في التطبيق
+        if downloaded_topics:
+            if "Medical Emergencies" not in DATA:
+                DATA["Medical Emergencies"] = {"General": []}
+            if "General" not in DATA["Medical Emergencies"]:
+                DATA["Medical Emergencies"]["General"] = []
+                
+            for topic_name, topic_content in downloaded_topics.items():
+                if topic_name not in DATA["Medical Emergencies"]["General"]:
+                    DATA["Medical Emergencies"]["General"].insert(0, topic_name)
+                
+                formatted_content = []
+                for item in topic_content:
+                    if isinstance(item, list):
+                        formatted_content.append(tuple(item))
+                    else:
+                        formatted_content.append(item)
+                        
+                TOPIC_PAGES[("Medical Emergencies", topic_name)] = formatted_content
+        # ============================================================
 
         Window.bind(on_keyboard=self.on_keyboard)
         self.current_back_action = None 
@@ -684,6 +714,7 @@ class JuniorDoctor(App):
         content = BoxLayout(orientation="vertical", spacing=dp(15), size_hint_y=None, padding=[dp(20), dp(10), dp(20), dp(40)])
         content.bind(minimum_height=content.setter("height"))
 
+        # --- إخلاء المسؤولية الطبي (Disclaimer) ---
         disclaimer_card = Card(bg="#FFF3CD", padding=15, radius=15)
         disclaimer_card.add_widget(make_wrapped_label("⚠️ MEDICAL DISCLAIMER", 14, "#856404", bold=True))
         disclaimer_card.add_widget(make_wrapped_label(
@@ -691,6 +722,7 @@ class JuniorDoctor(App):
             12, "#856404"
         ))
         content.add_widget(disclaimer_card)
+        # ------------------------------------------
 
         sections = TOPIC_PAGES.get((specialty, topic), [("NOT FOUND", "danger", "Topic not found.")])
         for item in sections:
@@ -838,37 +870,6 @@ class JuniorDoctor(App):
 
 if __name__ == "__main__":
     try:
-        # ================= نظام التحديثات التلقائية =================
-        # 1. التحقق من وجود تحديثات على GitHub (يتجاهل بهدوء إذا لم يوجد إنترنت)
-        data_updater.check_for_updates(current_version=1.0)
-        
-        # 2. تحميل البيانات التي تم تحميلها سابقاً من ذاكرة الهاتف
-        downloaded_topics = data_updater.load_downloaded_data()
-        
-        # 3. دمج المواضيع الجديدة في التطبيق
-        if downloaded_topics:
-            # التأكد من وجود القسم الرئيسي والقسم الفرعي
-            if "Medical Emergencies" not in DATA:
-                DATA["Medical Emergencies"] = {"General": []}
-            if "General" not in DATA["Medical Emergencies"]:
-                DATA["Medical Emergencies"]["General"] = []
-                
-            for topic_name, topic_content in downloaded_topics.items():
-                # إضافة اسم الموضوع إلى القائمة (إذا لم يكن موجوداً)
-                if topic_name not in DATA["Medical Emergencies"]["General"]:
-                    DATA["Medical Emergencies"]["General"].insert(0, topic_name)
-                
-                # تحويل المحتوى إلى الصيغة التي يفهمها التطبيق
-                formatted_content = []
-                for item in topic_content:
-                    if isinstance(item, list):
-                        formatted_content.append(tuple(item))
-                    else:
-                        formatted_content.append(item)
-                        
-                TOPIC_PAGES[("Medical Emergencies", topic_name)] = formatted_content
-        # ============================================================
-
         JuniorDoctor().run()
     except Exception as e:
         import traceback
