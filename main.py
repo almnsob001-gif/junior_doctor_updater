@@ -5,15 +5,23 @@ Config.set('graphics', 'resizable', '0')
 Config.set('graphics', 'orientation', 'portrait')
 
 import os
+import json
 import webbrowser
+import datetime
 import data_medical
 import data_pediatric
 import data_obgyn
 import data_surgical
+import data_ent
+import data_ophthalmology
+import data_orthopedics
+import data_urology
+import data_toxicology
 import data_drugs
 import data_protocols
-import data_toxicology
 import data_calculators
+import data_pediatric_calculators
+import data_extensions
 
 from kivy.app import App
 from kivy.metrics import dp
@@ -37,19 +45,46 @@ DATA.update(data_medical.MEDICAL_DATA)
 DATA.update(data_pediatric.PEDIATRIC_DATA)
 DATA.update(data_obgyn.OBGYN_DATA)
 DATA.update(data_surgical.SURGICAL_DATA)
+DATA.update(data_ent.ENT_DATA)
+DATA.update(data_ophthalmology.OPHTHALMOLOGY_DATA)
+DATA.update(data_orthopedics.ORTHOPEDICS_DATA)
+DATA.update(data_urology.UROLOGY_DATA)
+DATA.update(data_toxicology.TOXICOLOGY_DATA)
 DATA.update(data_drugs.DRUGS_DATA)
 DATA.update(data_protocols.PROTOCOLS_DATA)
-DATA.update(data_toxicology.TOXICOLOGY_DATA)
 DATA.update(data_calculators.CALCULATORS_DATA)
+DATA.update(data_pediatric_calculators.PEDIATRIC_CALCULATORS_DATA)
+
+# --- دمج التوسعات مع البيانات الموجودة (DATA) ---
+for spec, subs in data_extensions.EXTENSIONS_DATA.items():
+    if spec in DATA:
+        for sub, topics in subs.items():
+            if sub in DATA[spec]:
+                for t in topics:
+                    if t not in DATA[spec][sub]:
+                        DATA[spec][sub].append(t)
+            else:
+                DATA[spec][sub] = topics
+    else:
+        DATA[spec] = subs
 
 TOPIC_PAGES = {}
 TOPIC_PAGES.update(data_medical.MEDICAL_TOPICS)
 TOPIC_PAGES.update(data_pediatric.PEDIATRIC_TOPICS)
 TOPIC_PAGES.update(data_obgyn.OBGYN_TOPICS)
 TOPIC_PAGES.update(data_surgical.SURGICAL_TOPICS)
+TOPIC_PAGES.update(data_ent.ENT_TOPICS)
+TOPIC_PAGES.update(data_ophthalmology.OPHTHALMOLOGY_TOPICS)
+TOPIC_PAGES.update(data_orthopedics.ORTHOPEDICS_TOPICS)
+TOPIC_PAGES.update(data_urology.UROLOGY_TOPICS)
+TOPIC_PAGES.update(data_toxicology.TOXICOLOGY_TOPICS)
 TOPIC_PAGES.update(data_drugs.DRUGS_TOPICS)
 TOPIC_PAGES.update(data_protocols.PROTOCOLS_TOPICS)
-TOPIC_PAGES.update(data_toxicology.TOXICOLOGY_TOPICS)
+
+
+# --- دمج التوسعات مع TOPIC_PAGES ---
+for key, val in data_extensions.EXTENSIONS_TOPICS.items():
+    TOPIC_PAGES[key] = val
 
 for specialty in list(DATA.keys()):
     if isinstance(DATA[specialty], list):
@@ -58,7 +93,7 @@ for specialty in list(DATA.keys()):
 for specialty, subsystems in DATA.items():
     for subsystem, topics in subsystems.items():
         for topic in topics:
-            if (specialty, topic) not in TOPIC_PAGES and specialty != "Clinical Calculators":
+            if (specialty, topic) not in TOPIC_PAGES and specialty not in ("Clinical Calculators", "Pediatric Calculators"):
                 TOPIC_PAGES[(specialty, topic)] = [
                     ("PAGE UNDER DEVELOPMENT", "warning", f"Detailed clinical content for **{topic}** is currently being compiled."),
                     ("SAFETY NOTE", "danger", "Verify doses and protocols against local guidelines.")
@@ -74,6 +109,7 @@ TEXT = "#1E293B"
 MUTED = "#64748B"      
 BORDER = "#E2E8F0"     
 RED = "#DC2626"        
+VIOLET = "#8B5CF6"
 
 HEADER_NAVY = "#0F172A" 
 HEADER_BLUE = "#1E40AF" 
@@ -96,7 +132,8 @@ SPECIALTY_ICONS = {
     "Emergency & ICU Drugs": "💊",
     "Clinical Protocols": "📋",
     "Toxicology": "☠️",
-    "Clinical Calculators": "🧮"
+    "Clinical Calculators": "🧮",
+    "Pediatric Calculators": "🧒"
 }
 
 APP_NAME = "Junior Doctor"
@@ -211,7 +248,7 @@ class JuniorDoctor(App):
         self.current_back_action = None 
         
         self.sm = ScreenManager(transition=SlideTransition(duration=0.2))
-        for name in ("home", "subsystem", "category", "detail", "search"):
+        for name in ("home", "subsystem", "category", "detail", "search", "notes", "note_edit"):
             self.sm.add_widget(Screen(name=name))
         self.build_home()
         return self.sm
@@ -236,6 +273,169 @@ class JuniorDoctor(App):
             webbrowser.open(url)
         except Exception as e:
             print("Could not open browser:", e)
+
+    # ================= NOTES FEATURE =================
+    def get_notes_file(self):
+        try:
+            data_dir = self.user_data_dir
+            if not os.path.exists(data_dir):
+                os.makedirs(data_dir)
+            return os.path.join(data_dir, "notes.json")
+        except Exception:
+            return os.path.join(os.path.expanduser("~"), "junior_doctor_notes.json")
+
+    def load_notes(self):
+        try:
+            path = self.get_notes_file()
+            with open(path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            return []
+
+    def save_notes(self, notes):
+        try:
+            path = self.get_notes_file()
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(notes, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Error saving notes: {e}")
+
+    def delete_note(self, index):
+        notes = self.load_notes()
+        if 0 <= index < len(notes):
+            notes.pop(index)
+            self.save_notes(notes)
+        self.open_notes()
+
+    def open_notes(self):
+        screen = self.sm.get_screen("notes")
+        screen.clear_widgets()
+        main_layout = BoxLayout(orientation="vertical", padding=dp(0), spacing=dp(0))
+        
+        self.current_back_action = lambda: self.go("home")
+        main_layout.add_widget(ModernHeader("My Notes", "PERSONAL CLINICAL NOTES", bg_color=HEADER_NAVY))
+        
+        scroll = ScrollView(do_scroll_x=False)
+        content = BoxLayout(orientation="vertical", spacing=dp(12), size_hint_y=None, padding=[dp(20), dp(10), dp(20), dp(20)])
+        content.bind(minimum_height=content.setter("height"))
+        
+        add_btn = JDButton("+  Add New Note", bg=TEAL, height=52, radius=16, font_size=15)
+        add_btn.bind(on_release=lambda *_: self.open_note_editor(-1))
+        content.add_widget(add_btn)
+        
+        notes = self.load_notes()
+        
+        if not notes:
+            empty_card = Card(bg=CARD_BLUE, padding=20)
+            empty_card.add_widget(make_wrapped_label("No notes yet.", 16, NAVY, bold=True))
+            empty_card.add_widget(make_wrapped_label("Tap '+ Add New Note' to create your first note.", 13, MUTED))
+            content.add_widget(empty_card)
+        else:
+            for i, note in enumerate(reversed(notes)):
+                idx = len(notes) - 1 - i
+                card = Card(bg=CARD_PURPLE, padding=15)
+                
+                title = note.get("title", "") or "Untitled Note"
+                note_content = note.get("content", "") or ""
+                preview = note_content[:100] + ("..." if len(note_content) > 100 else "")
+                
+                card.add_widget(make_wrapped_label(title, 15, NAVY, bold=True))
+                if preview:
+                    card.add_widget(make_wrapped_label(preview, 12, MUTED))
+                card.add_widget(make_wrapped_label(note.get("date", ""), 11, MUTED, bold=True))
+                
+                btn_row = BoxLayout(size_hint_y=None, height=dp(42), spacing=dp(8))
+                edit_btn = JDButton("Edit", bg=BLUE, height=42, font_size=13)
+                edit_btn.bind(on_release=lambda _, ix=idx: self.open_note_editor(ix))
+                btn_row.add_widget(edit_btn)
+                
+                del_btn = JDButton("Delete", bg=RED, height=42, font_size=13)
+                del_btn.bind(on_release=lambda _, ix=idx: self.delete_note(ix))
+                btn_row.add_widget(del_btn)
+                
+                card.add_widget(btn_row)
+                content.add_widget(card)
+        
+        scroll.add_widget(content)
+        main_layout.add_widget(scroll)
+        screen.add_widget(main_layout)
+        self.go("notes")
+
+    def open_note_editor(self, note_index):
+        screen = self.sm.get_screen("note_edit")
+        screen.clear_widgets()
+        main_layout = BoxLayout(orientation="vertical", padding=dp(0), spacing=dp(0))
+        
+        self.current_back_action = lambda: self.open_notes()
+        
+        notes = self.load_notes()
+        is_new = (note_index == -1)
+        note = {"title": "", "content": "", "date": ""} if is_new else notes[note_index]
+        
+        title_text = "New Note" if is_new else "Edit Note"
+        main_layout.add_widget(ModernHeader(title_text, "PERSONAL NOTES", bg_color=HEADER_NAVY))
+        
+        scroll = ScrollView(do_scroll_x=False)
+        content = BoxLayout(orientation="vertical", spacing=dp(15), size_hint_y=None, padding=[dp(20), dp(10), dp(20), dp(20)])
+        content.bind(minimum_height=content.setter("height"))
+        
+        title_card = Card(bg=CARD_BLUE, padding=15)
+        title_card.add_widget(make_wrapped_label("Title", 14, NAVY, bold=True))
+        title_input = TextInput(
+            text=note.get("title", ""),
+            hint_text="Note title...",
+            multiline=False,
+            font_size=sp(15),
+            size_hint_y=None,
+            height=dp(45),
+            background_color=get_color_from_hex(WHITE),
+            foreground_color=get_color_from_hex(TEXT),
+            cursor_color=get_color_from_hex(BLUE),
+            padding=[dp(10), dp(10), dp(10), dp(10)]
+        )
+        title_card.add_widget(title_input)
+        content.add_widget(title_card)
+        
+        body_card = Card(bg=CARD_PURPLE, padding=15)
+        body_card.add_widget(make_wrapped_label("Content", 14, NAVY, bold=True))
+        body_input = TextInput(
+            text=note.get("content", ""),
+            hint_text="Write your note here...",
+            multiline=True,
+            font_size=sp(14),
+            size_hint_y=None,
+            height=dp(300),
+            background_color=get_color_from_hex(WHITE),
+            foreground_color=get_color_from_hex(TEXT),
+            cursor_color=get_color_from_hex(BLUE),
+            padding=[dp(10), dp(10), dp(10), dp(10)]
+        )
+        body_card.add_widget(body_input)
+        content.add_widget(body_card)
+        
+        def do_save(*_):
+            all_notes = self.load_notes()
+            new_note = {
+                "title": title_input.text.strip() or "Untitled Note",
+                "content": body_input.text.strip(),
+                "date": datetime.datetime.now().strftime("%Y-%m-%d  %H:%M")
+            }
+            if is_new:
+                all_notes.append(new_note)
+            else:
+                all_notes[note_index] = new_note
+            self.save_notes(all_notes)
+            self.open_notes()
+        
+        save_btn = JDButton("SAVE NOTE", bg=TEAL, height=52, radius=16, font_size=15)
+        save_btn.bind(on_release=do_save)
+        content.add_widget(save_btn)
+        
+        scroll.add_widget(content)
+        main_layout.add_widget(scroll)
+        screen.add_widget(main_layout)
+        self.go("note_edit")
+    # ================= END NOTES FEATURE =================
 
     def build_home(self):
         screen = self.sm.get_screen("home")
@@ -314,6 +514,13 @@ class JuniorDoctor(App):
             content.add_widget(cat_card)
             
         content.add_widget(BoxLayout(size_hint_y=None, height=dp(10))) 
+        
+        notes_btn = JDButton("📝  My Notes", bg=VIOLET, height=55, radius=16, font_size=15)
+        notes_btn.bind(on_release=lambda *_: self.open_notes())
+        content.add_widget(notes_btn)
+        
+        content.add_widget(BoxLayout(size_hint_y=None, height=dp(5))) 
+        
         contact_btn = JDButton("Contact via WhatsApp 💬", bg=TEAL, height=55, radius=16, font_size=15)
         contact_btn.bind(on_release=lambda *_: self.contact_developer())
         content.add_widget(contact_btn)
@@ -452,7 +659,7 @@ class JuniorDoctor(App):
         self.go("category")
 
     def open_detail(self, specialty, topic):
-        if specialty == "Clinical Calculators":
+        if specialty in ("Clinical Calculators", "Pediatric Calculators"):
             self.open_calculator(specialty, topic)
             return
             
@@ -473,6 +680,16 @@ class JuniorDoctor(App):
         scroll = ScrollView(do_scroll_x=False)
         content = BoxLayout(orientation="vertical", spacing=dp(15), size_hint_y=None, padding=[dp(20), dp(10), dp(20), dp(40)])
         content.bind(minimum_height=content.setter("height"))
+
+        # --- إخلاء المسؤولية الطبي (Disclaimer) ---
+        disclaimer_card = Card(bg="#FFF3CD", padding=15, radius=15)
+        disclaimer_card.add_widget(make_wrapped_label("⚠️ MEDICAL DISCLAIMER", 14, "#856404", bold=True))
+        disclaimer_card.add_widget(make_wrapped_label(
+            "This app is for educational and quick reference purposes only. It does not replace clinical judgment or local institutional protocols. Always verify doses and guidelines before applying.", 
+            12, "#856404"
+        ))
+        content.add_widget(disclaimer_card)
+        # ------------------------------------------
 
         sections = TOPIC_PAGES.get((specialty, topic), [("NOT FOUND", "danger", "Topic not found.")])
         for item in sections:
@@ -510,16 +727,27 @@ class JuniorDoctor(App):
         self.go("detail")
 
     def open_calculator(self, specialty, topic):
-        import data_calculators
-        calc = data_calculators.CALCULATOR_DEFINITIONS.get(topic)
+        if specialty == "Pediatric Calculators":
+            import data_pediatric_calculators
+            calc = data_pediatric_calculators.PEDIATRIC_CALCULATOR_DEFINITIONS.get(topic)
+        else:
+            import data_calculators
+            calc = data_calculators.CALCULATOR_DEFINITIONS.get(topic)
+            
         if not calc:
             return
             
+        subsystem_found = "General"
+        for sub, calcs in DATA[specialty].items():
+            if topic in calcs:
+                subsystem_found = sub
+                break
+        
         screen = self.sm.get_screen("detail")
         screen.clear_widgets()
         main_layout = BoxLayout(orientation="vertical", padding=dp(0), spacing=dp(0))
         
-        self.current_back_action = lambda: self.open_category(specialty, "General")
+        self.current_back_action = lambda: self.open_category(specialty, subsystem_found)
         
         main_layout.add_widget(ModernHeader(topic, "CALCULATOR", bg_color=HEADER_NAVY))
         
@@ -543,7 +771,7 @@ class JuniorDoctor(App):
         
         for field_def in calc["fields"]:
             key = field_def["key"]
-            field_layout = BoxLayout(orientation="vertical", size_hint_y=None, height=dp(75), spacing=dp(5))
+            field_layout = BoxLayout(orientation="vertical", size_hint_y=None, height=dp(80), spacing=dp(5))
             field_layout.add_widget(make_wrapped_label(field_def["label"], 13, TEXT, bold=True))
             
             input_box = TextInput(
@@ -555,7 +783,7 @@ class JuniorDoctor(App):
                 background_color=get_color_from_hex("#F4F7FB"),
                 foreground_color=get_color_from_hex(TEXT),
                 cursor_color=get_color_from_hex(BLUE),
-                padding=[dp(10), dp(10)]
+                padding=[dp(10), dp(10), dp(10), dp(10)]
             )
             field_layout.add_widget(input_box)
             inputs_card.add_widget(field_layout)
@@ -579,7 +807,7 @@ class JuniorDoctor(App):
                 values = {}
                 for k, inp in fields.items():
                     values[k] = float(inp.text.strip())
-                result = eval(calc["formula"], {"__builtins__": {}}, values)
+                result = eval(calc["formula"], {"__builtins__": {"min": min, "max": max, "abs": abs, "round": round}}, values)
                 result = round(result, 2)
                 result_label.text = f"Result: {result} {calc.get('unit', '')}"
                 result_label.color = get_color_from_hex(TEAL)
@@ -608,4 +836,47 @@ class JuniorDoctor(App):
         self.go("detail")
 
 if __name__ == "__main__":
-    JuniorDoctor().run()
+    try:
+        JuniorDoctor().run()
+    except Exception as e:
+        import traceback
+        error_text = traceback.format_exc()
+
+        from kivy.app import App
+        from kivy.uix.label import Label
+        from kivy.uix.scrollview import ScrollView
+        from kivy.uix.boxlayout import BoxLayout
+        from kivy.graphics import Color
+        from kivy.core.window import Window
+
+        Window.clearcolor = (1, 0.95, 0.95, 1)
+
+        class ErrorApp(App):
+            def build(self):
+                layout = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
+                title = Label(
+                    text="APP ERROR DETECTED\n\n(Please screenshot this and send it)",
+                    font_size="16sp",
+                    color=(0.7, 0, 0, 1),
+                    size_hint_y=None,
+                    height=dp(80),
+                    bold=True
+                )
+                layout.add_widget(title)
+
+                scroll = ScrollView()
+                lbl = Label(
+                    text=error_text,
+                    font_size="10sp",
+                    color=(0, 0, 0, 1),
+                    size_hint_y=None,
+                    halign="left",
+                    valign="top"
+                )
+                lbl.bind(texture_size=lambda i, s: setattr(i, 'height', s[1] + dp(20)))
+                lbl.bind(width=lambda i, w: setattr(i, 'text_size', (w - dp(10), None)))
+                scroll.add_widget(lbl)
+                layout.add_widget(scroll)
+                return layout
+
+        ErrorApp().run()
