@@ -22,7 +22,7 @@ import data_protocols
 import data_calculators
 import data_pediatric_calculators
 import data_extensions
-import data_updater  # <--- تم إضافة ملف التحديثات
+import data_updater  # <--- ملف التحديثات
 
 from kivy.app import App
 from kivy.metrics import dp
@@ -250,13 +250,16 @@ class JuniorDoctor(App):
         # ---------------------------------------
 
         # ================= نظام التحديثات التلقائية =================
-        # 1. التحقق من التحديثات وحفظها في مجلد التطبيق الآمن
+        # 1. التحقق من التحديثات وحفظها
         data_updater.check_for_updates(self.user_data_dir, current_version=1.0)
         
-        # 2. تحميل البيانات
+        # 2. قراءة رسالة الخطأ إن وجدت (لعرضها في الشاشة)
+        self.update_error_message = data_updater.get_error_message(self.user_data_dir)
+        
+        # 3. تحميل البيانات
         downloaded_topics = data_updater.load_downloaded_data(self.user_data_dir)
         
-        # 3. دمج المواضيع الجديدة في التطبيق
+        # 4. دمج المواضيع الجديدة
         if downloaded_topics:
             if "Medical Emergencies" not in DATA:
                 DATA["Medical Emergencies"] = {"General": []}
@@ -498,6 +501,14 @@ class JuniorDoctor(App):
         search_input.bind(on_text_validate=lambda i: self.open_search(i.text))
         search_box.add_widget(search_input)
         content.add_widget(search_box)
+
+        # ---- صندوق تصحيح الأخطاء (يظهر فقط إذا كان هناك خطأ) ----
+        if hasattr(self, 'update_error_message') and self.update_error_message:
+            err_card = Card(bg="#FEF2F2", padding=10, radius=10)
+            err_card.add_widget(make_wrapped_label("⚠️ UPDATE DEBUG INFO:", 12, RED, bold=True))
+            err_card.add_widget(make_wrapped_label(self.update_error_message, 11, RED))
+            content.add_widget(err_card)
+        # --------------------------------------------------------
 
         hero = BoxLayout(orientation="vertical", size_hint_y=None, height=dp(140))
         draw_card_bg(hero, NAVY, radius=28)
