@@ -250,7 +250,7 @@ class JuniorDoctor(App):
         # ---------------------------------------
 
         # ================= نظام التحديثات التلقائية =================
-        # 1. التحقق من التحديثات وحفظها
+        # 1. التحقق من التحديثات
         data_updater.check_for_updates(self.user_data_dir, current_version=1.0)
         
         # 2. قراءة رسالة الخطأ إن وجدت (لعرضها في الشاشة)
@@ -259,25 +259,26 @@ class JuniorDoctor(App):
         # 3. تحميل البيانات
         downloaded_topics = data_updater.load_downloaded_data(self.user_data_dir)
         
-        # 4. دمج المواضيع الجديدة
+        # 4. دمج المواضيع الجديدة (مرن لأي قسم)
         if downloaded_topics:
-            if "Medical Emergencies" not in DATA:
-                DATA["Medical Emergencies"] = {"General": []}
-            if "General" not in DATA["Medical Emergencies"]:
-                DATA["Medical Emergencies"]["General"] = []
-                
-            for topic_name, topic_content in downloaded_topics.items():
-                if topic_name not in DATA["Medical Emergencies"]["General"]:
-                    DATA["Medical Emergencies"]["General"].insert(0, topic_name)
-                
-                formatted_content = []
-                for item in topic_content:
-                    if isinstance(item, list):
-                        formatted_content.append(tuple(item))
-                    else:
-                        formatted_content.append(item)
+            for spec_name, subs in downloaded_topics.items():
+                if spec_name not in DATA:
+                    DATA[spec_name] = {}
+                for sub_name, topics in subs.items():
+                    if sub_name not in DATA[spec_name]:
+                        DATA[spec_name][sub_name] = []
+                    for topic_name, topic_content in topics.items():
+                        if topic_name not in DATA[spec_name][sub_name]:
+                            DATA[spec_name][sub_name].insert(0, topic_name)
                         
-                TOPIC_PAGES[("Medical Emergencies", topic_name)] = formatted_content
+                        formatted_content = []
+                        for item in topic_content:
+                            if isinstance(item, list):
+                                formatted_content.append(tuple(item))
+                            else:
+                                formatted_content.append(item)
+                                
+                        TOPIC_PAGES[(spec_name, topic_name)] = formatted_content
         # ============================================================
 
         Window.bind(on_keyboard=self.on_keyboard)
