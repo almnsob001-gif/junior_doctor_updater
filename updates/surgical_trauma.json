@@ -1,0 +1,78 @@
+{
+  "Surgical & Trauma": {
+    "General Surgery - Acute Abdomen": {
+      "Acute Abdomen and Surgical Peritonitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Appendicitis and Perforated Appendix": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Intestinal Obstruction": [["01 — DEFINITION", "info", "Page under development."]],
+      "Incarcerated and Strangulated Hernia": [["01 — DEFINITION", "info", "Page under development."]],
+      "Perforated Peptic Ulcer": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Gastrointestinal Bleeding": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Mesenteric Ischemia": [["01 — DEFINITION", "info", "Page under development."]],
+      "Sigmoid and Cecal Volvulus": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Colonic Pseudo-Obstruction": [["01 — DEFINITION", "info", "Page under development."]],
+      "Toxic Megacolon and Fulminant Colitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Intra-Abdominal Abscess and Postoperative Sepsis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Esophageal Perforation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Esophageal Food Bolus Impaction": [["01 — DEFINITION", "info", "Page under development."]],
+      "Testicular Torsion and Acute Scrotum": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Urinary Retention": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Gastric Dilatation and Gastric Ischemia": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Ischemic Colitis": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Hepatobiliary & Pancreatic": {
+      "Acute Pancreatitis and Complications": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Cholecystitis and Acute Cholangitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Gallbladder Perforation and Complicated Cholecystitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Infected Pancreatic Necrosis and Pancreatic Abscess": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Liver Failure Requiring Emergency Transplant Evaluation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Cholangitis with Septic Shock": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Vascular Surgery": {
+      "Ruptured Abdominal Aortic Aneurysm": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Limb Ischemia": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Mesenteric Venous Thrombosis": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Trauma Surgery": {
+      "Abdominal Trauma and Solid Organ Injury": [["01 — DEFINITION", "info", "Page under development."]],
+      "Penetrating Abdominal Trauma": [["01 — DEFINITION", "info", "Page under development."]],
+      "Chest Trauma and Tension Pneumothorax": [["01 — DEFINITION", "info", "Page under development."]],
+      "Open Fractures and Limb-Threatening Injuries": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Compartment Syndrome": [["01 — DEFINITION", "info", "Page under development."]],
+      "Complex Soft-Tissue Defects and Extensive Skin Loss": [["01 — DEFINITION", "info", "Page under development."]],
+      "Massive Hemothorax": [["01 — DEFINITION", "info", "Page under development."]],
+      "Flail Chest and Severe Chest Wall Injury": [["01 — DEFINITION", "info", "Page under development."]],
+      "Cardiac Tamponade Following Chest Trauma": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Surgical Bleeding and Hemorrhagic Shock": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Surgical Infection": {
+      "Necrotizing Soft Tissue Infection": [["01 — DEFINITION", "info", "Page under development."]],
+      "Fournier Gangrene and Perineal Sepsis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Descending Necrotizing Mediastinitis": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Postoperative & Perioperative Complications": {
+      "Anastomotic Leak Following Gastrointestinal Surgery": [["01 — DEFINITION", "info", "Page under development."]],
+      "Postoperative Bowel Obstruction and Prolonged Ileus": [["01 — DEFINITION", "info", "Page under development."]],
+      "Postoperative Hemorrhage and Hematoma": [["01 — DEFINITION", "info", "Page under development."]],
+      "Abdominal Wound Dehiscence and Evisceration": [["01 — DEFINITION", "info", "Page under development."]],
+      "Stoma Complications: Ischemia, Retraction, Prolapse, and Obstruction": [["01 — DEFINITION", "info", "Page under development."]],
+      "Postoperative Sepsis and Septic Shock": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Abdominal Compartment Syndrome": [["01 — DEFINITION", "info", "Page under development."]],
+      "Suspected Iatrogenic Intra-abdominal Organ Injury": [["01 — DEFINITION", "info", "Page under development."]],
+      "Postoperative Respiratory Deterioration": [["01 — DEFINITION", "info", "Page under development."]],
+      "Retained Surgical Foreign Body": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Abdominal Compartment Syndrome After Major Resuscitation": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Colorectal Surgery": {
+      "Acute Perianal and Perirectal Abscess": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Burns & Environmental": {
+      "Major Burns and Burn Shock": [["01 — DEFINITION", "info", "Page under development."]],
+      "Inhalation Injury and Airway Burns": [["01 — DEFINITION", "info", "Page under development."]],
+      "Electrical Burns and High-Voltage Electrical Injury": [["01 — DEFINITION", "info", "Page under development."]],
+      "Chemical Burns and Emergency Decontamination": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Thoracic Surgery": {
+      "Empyema Requiring Urgent Drainage": [["01 — DEFINITION", "info", "Page under development."]]
+    }
+  }
+}
