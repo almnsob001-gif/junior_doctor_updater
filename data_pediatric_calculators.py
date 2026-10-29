@@ -1,5 +1,5 @@
 # ==============================================================================
-# ملف حاسبات الأطفال (Pediatric Calculators)
+# ملف حاسبات الأطفال (Pediatric Calculators) - النسخة المصححة
 # ==============================================================================
 
 PEDIATRIC_CALCULATORS_DATA = {
@@ -55,8 +55,10 @@ PEDIATRIC_CALCULATOR_DEFINITIONS = {
     "Pediatric Defibrillation Energy (Subsequent)": {
         "description": "Subsequent shock energy for pediatric defibrillation.",
         "fields": [{"key": "wt", "label": "Weight (kg)", "placeholder": "e.g., 20"}],
-        "formula_text": "Energy = 4 J/kg (max 10 J/kg or adult dose)", "formula": "4 * wt", "unit": "J",
-        "interpretation": "Second and subsequent shocks: 4 J/kg (max 10 J/kg or adult dose).",
+        "formula_text": "Energy = 4 J/kg (max 10 J/kg or adult dose, capped at 360 J)",
+        "formula": "min(4 * wt, 360)",
+        "unit": "J",
+        "interpretation": "Second and subsequent shocks: 4 J/kg (max 10 J/kg or adult dose).\nCapped at 360 J (standard adult maximum).",
         "reference": "AHA 2025 PALS Guidelines."
     },
     "Pediatric Epinephrine (Cardiac Arrest)": {
@@ -98,9 +100,11 @@ PEDIATRIC_CALCULATOR_DEFINITIONS = {
         "reference": "Schwartz et al. (2009)."
     },
     "Pediatric Vancomycin Dose": {
-        "description": "Standard vancomycin dose for pediatric severe infections.",
+        "description": "Standard vancomycin dose for pediatric severe infections (max 750 mg/dose).",
         "fields": [{"key": "wt", "label": "Weight (kg)", "placeholder": "e.g., 20"}],
-        "formula_text": "Dose = 15 mg/kg per dose (q6h or per protocol)", "formula": "15 * wt", "unit": "mg",
+        "formula_text": "Dose = 15 mg/kg per dose (max 750 mg/dose)",
+        "formula": "min(15 * wt, 750)",
+        "unit": "mg",
         "interpretation": "Typical: 15 mg/kg q6h (max 750 mg/dose).\nAdjust per renal function and levels.\nConsider 60-80 mg/kg/day divided q6h for severe MRSA.",
         "reference": "IDSA; PIDS Guidelines."
     },
