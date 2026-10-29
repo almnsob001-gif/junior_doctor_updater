@@ -1,0 +1,27 @@
+{
+  "Medical Emergencies": {
+    "Cardiovascular": {
+      "Adult Cardiac Arrest": [
+        ["01 — DEFINITION", "info", "Page under development. Please check back later for the latest guidelines."],
+        ["02 — TREATMENT", "success", "Content coming soon."]
+      ],
+      "Acute Coronary Syndrome (ACS)": [
+        ["01 — DEFINITION", "info", "Page under development."]
+      ]
+    },
+    "Respiratory": {
+      "Acute Severe Asthma": [
+        ["01 — DEFINITION", "info", "Page under development."]
+      ]
+    },
+    "Renal": {
+      "Nephrotic Syndrome": [
+        ["01 — DEFINITION", "info", "Nephrotic syndrome is a clinical syndrome..."],
+        ["02 — RECOGNIZE", "info", "Progressive bilateral pitting edema..."]
+      ],
+      "Nephritic Syndrome": [
+        ["01 — DEFINITION", "info", "Nephritic syndrome is a clinical presentation..."]
+      ]
+    }
+  }
+}
