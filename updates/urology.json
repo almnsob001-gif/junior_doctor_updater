@@ -1,0 +1,50 @@
+{
+  "Urology Emergencies": {
+    "Scrotal & Testicular Emergencies": {
+      "Testicular Torsion": [["01 — DEFINITION", "info", "Page under development."]],
+      "Testicular Rupture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Scrotal Pain: Differential Diagnosis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Epididymo-Orchitis": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Penile Emergencies": {
+      "Ischemic Priapism": [["01 — DEFINITION", "info", "Page under development."]],
+      "Paraphimosis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Penile Fracture": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Urinary Retention & Obstruction": {
+      "Acute Urinary Retention": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Urinary Retention with High-Risk Complications": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Obstructive Uropathy": [["01 — DEFINITION", "info", "Page under development."]],
+      "Post-Obstructive Diuresis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Difficult Urethral Catheterization": [["01 — DEFINITION", "info", "Page under development."]],
+      "Postrenal Acute Kidney Injury": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Urinary Tract Infection & Sepsis": {
+      "Urosepsis and Septic Shock": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Pyelonephritis with Complications": [["01 — DEFINITION", "info", "Page under development."]],
+      "Emphysematous Pyelonephritis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Renal or Perinephric Abscess": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Bacterial Prostatitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Obstructed Infected Kidney": [["01 — DEFINITION", "info", "Page under development."]],
+      "Infected Ureteric Stone": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Urolithiasis & Renal Colic": {
+      "Acute Ureteric Colic": [["01 — DEFINITION", "info", "Page under development."]],
+      "Renal Colic in Pregnancy": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Hematuria": {
+      "Gross Hematuria with Clot Retention": [["01 — DEFINITION", "info", "Page under development."]],
+      "Gross Hematuria Without Clot Retention": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Trauma & Iatrogenic Injury": {
+      "Renal Trauma": [["01 — DEFINITION", "info", "Page under development."]],
+      "Bladder Trauma and Rupture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Urethral Injury": [["01 — DEFINITION", "info", "Page under development."]],
+      "Iatrogenic Ureteric Injury": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Soft Tissue & Other Emergencies": {
+      "Fournier's Gangrene": [["01 — DEFINITION", "info", "Page under development."]],
+      "General Safety Checklist": [["01 — DEFINITION", "info", "Page under development."]]
+    }
+  }
+}
