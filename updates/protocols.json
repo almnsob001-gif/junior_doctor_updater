@@ -1,7 +1,7 @@
 {
   "Clinical Protocols": {
     "General": {
-      "Adult Advanced Life Support (ALS) Protocol": [
+      "Adult ALS Protocol": [
         ["01 — RECOGNIZE CARDIAC ARREST", "danger", "- Suspect cardiac arrest in an unresponsive adult with absent or abnormal breathing.\n- Check responsiveness and assess breathing.\n- Check pulse for no more than 10 seconds if you are a healthcare professional.\n- If no definite pulse is felt, begin CPR immediately.\n- Activate the resuscitation team and bring the defibrillator.\n- If the patient is unresponsive but has a definite pulse, assess for respiratory arrest and provide appropriate ventilatory support."],
         ["02 — IMMEDIATE ACTIONS", "success", "- Start high-quality CPR immediately.\n- Attach the monitor/defibrillator as soon as possible.\n- Identify the cardiac rhythm: shockable or non-shockable.\n- Establish IV access; use IO access if IV access cannot be obtained promptly.\n- Give oxygen and ventilate with a bag-mask device.\n- Administer medications according to the rhythm-specific algorithm.\n- Search for and treat reversible causes.\n- Minimize interruptions in chest compressions."],
         ["03 — HIGH-QUALITY CPR", "warning", "[b]Chest Compressions:[/b]\n- Rate: 100–120 compressions/minute.\n- Depth: at least 5 cm (2 inches), while avoiding excessive depth beyond approximately 6 cm.\n- Allow complete chest recoil.\n- Minimize interruptions; keep pauses as short as possible.\n- Change compressor approximately every 2 minutes.\n- Avoid excessive ventilation.\n\n[b]Ventilation:[/b]\n- Before advanced airway: 30:2 ratio.\n- After advanced airway: 1 breath every 6 seconds (10 breaths/minute).\n- Confirm and monitor advanced airway placement with waveform capnography when available."],
