@@ -1,10 +1,11 @@
 # ============================================================
-# data_updater.py — النسخة المتزامنة (تضمن إضافة المواضيع فوراً)
+# data_updater.py — النسخة الذكية (تفتح فوراً بدون نت، وتنتظر التحميل مع النت)
 # ============================================================
 import os
 import json
 import urllib.request
 import ssl
+import socket
 
 # ⚠️ الرابط الأساسي للمستودع الخاص بك
 REPO_RAW = "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main"
@@ -23,8 +24,19 @@ def _safe_path(user_data_dir, name):
     except Exception:
         return os.path.join(os.path.expanduser("~"), name)
 
-def _fetch(url, timeout=3):
-    """جلب البيانات مع مهلة قصيرة (3 ثواني) لتجنب تعليق التطبيق"""
+def is_online():
+    """
+    فحص سريع جداً للإنترنت (يأخذ أقل من ثانية).
+    يتصل بخادم جوجل (8.8.8.8) لمعرفة ما إذا كان هناك اتصال فعلي.
+    """
+    try:
+        socket.create_connection(("8.8.8.8", 53), timeout=1.0)
+        return True
+    except OSError:
+        return False
+
+def _fetch(url, timeout=15):
+    """جلب البيانات مع مهلة انتظار (15 ثانية للتحميل، كافية للشبكات الضعيفة)"""
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
@@ -35,43 +47,53 @@ def _fetch(url, timeout=3):
 
 def check_for_updates(user_data_dir, current_version=1.0):
     """
-    هذه الدالة الآن متزامنة (تنتظر التحميل لتنتهي قبل أن يكمل التطبيق).
-    هذا يضمن أن المواضيع الجديدة ستظهر فوراً عند فتح التطبيق.
+    إذا لم يكن هناك إنترنت: يفتح التطبيق فوراً.
+    إذا كان هناك إنترنت: ينتظر حتى يتم تحميل البيانات الجديدة بالكامل.
     """
+    # 1. الفحص السريع: هل هناك إنترنت؟
+    if not is_online():
+        print("[updater] No internet. Opening app immediately.")
+        return
+
+    # 2. يوجد إنترنت -> انتظر وقم بتحميل التحديثات
     err_path = _safe_path(user_data_dir, _ERROR_FILE)
     try:
-        # 1. جلب رقم آخر إصدار من GitHub
+        # جلب رقم آخر إصدار
         raw = _fetch(VERSION_URL)
         version_info = json.loads(raw)
         latest = float(version_info.get("version", current_version))
 
-        # 2. إذا كان الإصدار الحالي هو الأحدث، لا تفعل شيئاً
+        # إذا كان الإصدار الحالي هو الأحدث
         if latest <= float(current_version):
+            print("[updater] App is up to date.")
             return
 
-        # 3. تحميل بيانات الإصدار الجديد
+        # تحميل بيانات الإصدار الجديد
+        print(f"[updater] Downloading version {latest}...")
         data_url = DATA_URL_TEMPLATE.format(version=str(latest))
         raw = _fetch(data_url)
         new_data = json.loads(raw)
 
-        # 4. حفظ البيانات الجديدة
+        # حفظ البيانات الجديدة بأمان
         data_path = _safe_path(user_data_dir, _DATA_FILE)
-        with open(data_path, "w", encoding="utf-8") as f:
+        temp_path = data_path + ".tmp"
+        with open(temp_path, "w", encoding="utf-8") as f:
             json.dump(new_data, f, ensure_ascii=False, indent=2)
+        os.replace(temp_path, data_path)
 
-        # 5. حفظ رقم الإصدار
+        # حفظ رقم الإصدار
         ver_path = _safe_path(user_data_dir, _LAST_VERSION_FILE)
         with open(ver_path, "w", encoding="utf-8") as f:
             f.write(str(latest))
 
-        # 6. مسح أي خطأ سابق
+        # مسح أي خطأ سابق
         if os.path.exists(err_path):
             os.remove(err_path)
 
-        print(f"[updater] Updated to version {latest} successfully.")
+        print(f"[updater] Successfully updated to version {latest}.")
 
     except Exception as e:
-        # في حال حدوث خطأ (مثل انقطاع الإنترنت)، نحفظه بصمت ولا نغلق التطبيق
+        # حفظ الخطأ بصمت حتى لا يتعطل التطبيق
         try:
             with open(err_path, "w", encoding="utf-8") as f:
                 f.write(str(e))
