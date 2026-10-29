@@ -198,7 +198,6 @@ def make_markup_label(text, size=13, color=TEXT):
     if not isinstance(text, str):
         text = str(text)
     
-    # حل مشكلة عدم وضوح الألوان في الوضع الليلي
     blue_hex = BLUE.replace("#", "")
     red_hex = RED.replace("#", "")
     
@@ -482,6 +481,63 @@ class JuniorDoctor(App):
         except Exception as e:
             print(f"Popup error: {e}")
 
+    # ================= ANNOUNCEMENTS =================
+    def get_announcement_file(self):
+        try:
+            d = self.user_data_dir
+            if not os.path.exists(d):
+                os.makedirs(d)
+            return os.path.join(d, "last_announcement.txt")
+        except Exception:
+            return os.path.join(os.path.expanduser("~"), "last_announcement.txt")
+
+    def check_and_show_announcement(self, force=False):
+        try:
+            if "App Announcements" in DATA and "General" in DATA["App Announcements"]:
+                topics = DATA["App Announcements"]["General"]
+                if topics:
+                    latest_topic = topics[0]
+                    pages = TOPIC_PAGES.get(("App Announcements", latest_topic), [])
+                    if pages:
+                        # استخراج النص
+                        message = pages[0][2] if len(pages[0]) == 3 else pages[0][1]
+                        
+                        # التحقق مما إذا كان الإعلان قد تم عرضه مسبقاً
+                        ann_file = self.get_announcement_file()
+                        last_shown = ""
+                        if os.path.exists(ann_file):
+                            with open(ann_file, 'r', encoding='utf-8') as f:
+                                last_shown = f.read().strip()
+                                
+                        if force or last_shown != message:
+                            self.show_announcement_popup("App Announcement", message)
+                            with open(ann_file, 'w', encoding='utf-8') as f:
+                                f.write(message)
+        except Exception as e:
+            print(f"Announcement error: {e}")
+
+    def show_announcement_popup(self, title, message):
+        try:
+            content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
+            content.add_widget(make_wrapped_label(title, 16, TEAL, bold=True))
+            
+            scroll = ScrollView()
+            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
+            list_layout.bind(minimum_height=list_layout.setter("height"))
+            list_layout.add_widget(make_wrapped_label(message, 14, TEXT))
+            scroll.add_widget(list_layout)
+            content.add_widget(scroll)
+            
+            btn = JDButton("Got it!", bg=BLUE, height=45, radius=12, font_size=14)
+            content.add_widget(btn)
+            
+            popup = Popup(title="Notice", content=content, size_hint=(0.9, 0.6),
+                          background_color=get_color_from_hex(SURFACE), title_color=get_color_from_hex(NAVY))
+            btn.bind(on_release=lambda *_: popup.dismiss())
+            popup.open()
+        except Exception as e:
+            print(f"Popup error: {e}")
+
     # ================= WHAT'S NEW POPUP =================
     def check_and_show_updates(self):
         try:
@@ -503,7 +559,6 @@ class JuniorDoctor(App):
             new_topics = []
             updated_topics = []
             
-            # فصل المواضيع بناءً على الكلمات المفتاحية
             for t in topics:
                 clean_t = t.replace("✨", "").replace("🔄", "").strip()
                 if "NEW:" in clean_t:
@@ -511,7 +566,7 @@ class JuniorDoctor(App):
                 elif "UPDATED:" in clean_t:
                     updated_topics.append(clean_t.replace("UPDATED:", "").strip())
                 else:
-                    new_topics.append(clean_t) # في حال لم يكن هناك كلمة مفتاحية
+                    new_topics.append(clean_t)
 
             content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
             content.add_widget(make_wrapped_label(f"What's New in Update (v{updates_data.get('version')})", 16, TEAL, bold=True))
@@ -524,7 +579,7 @@ class JuniorDoctor(App):
                 list_layout.add_widget(make_wrapped_label("New Topics Added:", 14, TEAL, bold=True))
                 for t in new_topics:
                     list_layout.add_widget(make_wrapped_label(f"- {t}", 13, TEXT))
-                list_layout.add_widget(BoxLayout(size_hint_y=None, height=dp(12))) # مسافة بين القسمين
+                list_layout.add_widget(BoxLayout(size_hint_y=None, height=dp(12)))
                 
             if updated_topics:
                 list_layout.add_widget(make_wrapped_label("Existing Topics Updated:", 14, BLUE, bold=True))
@@ -565,6 +620,15 @@ class JuniorDoctor(App):
         theme_card.add_widget(theme_row)
         theme_card.add_widget(make_wrapped_label("Switch between light and dark themes.", 12, MUTED))
         content.add_widget(theme_card)
+
+        # زر عرض الإعلان
+        ann_card = Card(bg=CARD_PURPLE, padding=15)
+        ann_card.add_widget(make_wrapped_label("Latest Announcement", 14, NAVY, bold=True))
+        ann_card.add_widget(make_wrapped_label("View the latest medical tip or app announcement.", 12, TEXT))
+        ann_btn = JDButton("View Announcement", bg=VIOLET, height=48, radius=12, font_size=14)
+        ann_btn.bind(on_release=lambda *_: self.check_and_show_announcement(force=True))
+        ann_card.add_widget(ann_btn)
+        content.add_widget(ann_card)
 
         contact_card = Card(bg=CARD_GREEN, padding=15)
         contact_card.add_widget(make_wrapped_label("Feedback & Support", 14, NAVY, bold=True))
@@ -936,6 +1000,7 @@ class JuniorDoctor(App):
         screen.add_widget(main_layout)
         
         Clock.schedule_once(lambda dt: self.check_and_show_updates(), 0.5)
+        Clock.schedule_once(lambda dt: self.check_and_show_announcement(), 0.8)
 
     # ================= SEARCH (Global - Titles Only) =================
     def open_search(self, query=""):
