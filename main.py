@@ -197,7 +197,16 @@ def draw_card_bg(widget, bg_color, radius=24, shadow=True, is_bar=False):
 def make_markup_label(text, size=13, color=TEXT):
     if not isinstance(text, str):
         text = str(text)
-    text = text.replace("[color=0000FF]", "[color=#2563EB]").replace("[color=FF0000]", "[color=#DC2626]")
+    
+    # حل مشكلة عدم وضوح الألوان في الوضع الليلي
+    blue_hex = BLUE.replace("#", "")
+    red_hex = RED.replace("#", "")
+    
+    text = text.replace("[color=0000FF]", f"[color={blue_hex}]")
+    text = text.replace("[color=FF0000]", f"[color={red_hex}]")
+    text = text.replace("[color=#2563EB]", f"[color={blue_hex}]")
+    text = text.replace("[color=#DC2626]", f"[color={red_hex}]")
+    
     lab = Label(text=text, font_size=sp(size), color=get_color_from_hex(color), markup=True, halign="left", valign="top", size_hint_y=None, line_height=1.25)
     lab.bind(width=lambda i, w: setattr(lab, 'text_size', (w, None)))
     lab.bind(texture_size=lambda i, s: setattr(lab, 'height', s[1] + dp(10)))
@@ -214,16 +223,20 @@ def make_wrapped_label(text, size=14, color=TEXT, bold=False):
 def highlight_text(text, query):
     if not query:
         return text
-    parts = re.split(r'(\[[^\]]+\])', str(text))
+    # حل مشكلة عدم وضوح الألوان في الوضع الليلي
+    text = re.sub(r'\[color=#([0-9A-Fa-f]{6})\]', r'[color=\1]', str(text))
+    
+    parts = re.split(r'(\[[^\]]+\])', text)
     highlighted_parts = []
+    red_hex = RED.replace("#", "")
+    
     for part in parts:
         if part.startswith('[') and part.endswith(']'):
             highlighted_parts.append(part)
         else:
-            highlighted_part = re.sub(f'(?i)({re.escape(query)})', r'[color=#DC2626][b]\1[/b][/color]', part)
+            highlighted_part = re.sub(f'(?i)({re.escape(query)})', f'[color={red_hex}][b][u]\\1[/u][/b][/color]', part)
             highlighted_parts.append(highlighted_part)
     return "".join(highlighted_parts)
-
 
 class Card(BoxLayout):
     def __init__(self, bg=WHITE, radius=24, padding=20, **kwargs):
@@ -274,7 +287,6 @@ class ModernHeader(BoxLayout):
         title_layout.add_widget(title_box)
         self.add_widget(title_layout)
         
-        # إضافة زر النقاط الثلاث (⋮) في الزاوية
         if menu_callback:
             menu_btn = Button(
                 text="⋮", font_size=sp(24), size_hint=(None, 1), width=dp(40), 
@@ -943,7 +955,6 @@ class JuniorDoctor(App):
         top_area = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10), padding=[dp(20), dp(10), dp(20), dp(10)])
         top_area.bind(minimum_height=top_area.setter("height"))
 
-        # ================= تعديل شريط البحث وإضافة الأسهم =================
         search_container = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(60), spacing=dp(10))
         
         search_box = BoxLayout(orientation="horizontal", size_hint=(1, 1))
@@ -969,7 +980,6 @@ class JuniorDoctor(App):
         search_container.add_widget(btn_next)
 
         top_area.add_widget(search_container)
-        # ==================================================================
 
         scroll = ScrollView(do_scroll_x=False)
         results = BoxLayout(orientation="vertical", spacing=dp(12), size_hint_y=None, padding=[dp(20), dp(10), dp(20), dp(20)])
@@ -1136,25 +1146,32 @@ class JuniorDoctor(App):
                             padding=[dp(20), dp(10)])
         content.bind(minimum_height=content.setter("height"))
 
-        for i, topic in enumerate(DATA[specialty][subsystem], start=1):
-            card = Card(bg=CARD_PURPLE, padding=15)
-            row = BoxLayout(size_hint_y=None, height=dp(35))
-            
-            num_badge = Card(bg=WHITE, radius=8, padding=[dp(8), dp(2)],
-                             size_hint=(None, None), size=(dp(32), dp(28)))
-            num_badge.add_widget(Label(text=str(i).zfill(2), font_size=sp(13),
-                                       color=get_color_from_hex(BLUE), bold=True))
-            row.add_widget(num_badge)
-            
-            title_box = BoxLayout(padding=[dp(10), 0])
-            title_box.add_widget(make_wrapped_label(topic, 15, NAVY, bold=True))
-            row.add_widget(title_box)
-            card.add_widget(row)
-            
-            btn = JDButton("Read Topic", bg=BLUE, height=38, radius=10, font_size=13)
-            btn.bind(on_release=lambda _, t=topic: self.open_detail(specialty, t))
-            card.add_widget(btn)
+        # إضافة رسالة القسم الفارغ
+        if not DATA[specialty][subsystem]:
+            card = Card(bg=CARD_BLUE, padding=20)
+            card.add_widget(make_wrapped_label("No topics available yet.", 16, NAVY, bold=True))
+            card.add_widget(make_wrapped_label("Please check back later for updates.", 13, MUTED))
             content.add_widget(card)
+        else:
+            for i, topic in enumerate(DATA[specialty][subsystem], start=1):
+                card = Card(bg=CARD_PURPLE, padding=15)
+                row = BoxLayout(size_hint_y=None, height=dp(35))
+                
+                num_badge = Card(bg=WHITE, radius=8, padding=[dp(8), dp(2)],
+                                 size_hint=(None, None), size=(dp(32), dp(28)))
+                num_badge.add_widget(Label(text=str(i).zfill(2), font_size=sp(13),
+                                           color=get_color_from_hex(BLUE), bold=True))
+                row.add_widget(num_badge)
+                
+                title_box = BoxLayout(padding=[dp(10), 0])
+                title_box.add_widget(make_wrapped_label(topic, 15, NAVY, bold=True))
+                row.add_widget(title_box)
+                card.add_widget(row)
+                
+                btn = JDButton("Read Topic", bg=BLUE, height=38, radius=10, font_size=13)
+                btn.bind(on_release=lambda _, t=topic: self.open_detail(specialty, t))
+                card.add_widget(btn)
+                content.add_widget(card)
 
         scroll.add_widget(content)
         main_layout.add_widget(scroll)
@@ -1176,7 +1193,6 @@ class JuniorDoctor(App):
                 break
         self.current_back_action = lambda: self.open_category(specialty, subsystem_found)
 
-        # دالة إظهار القائمة المنسدلة تحت الزر مباشرة
         def show_menu(btn):
             is_fav = self.is_favorite(specialty, topic)
             fav_text = "Remove from Favorites" if is_fav else "Add to Favorites"
@@ -1185,7 +1201,6 @@ class JuniorDoctor(App):
             dropdown.width = dp(200)
             dropdown.auto_width = False
 
-            # خيار البحث
             btn1 = Button(text="Find in Page", size_hint_y=None, height=dp(45),
                           background_normal="", background_color=get_color_from_hex(SURFACE),
                           color=get_color_from_hex(TEXT), font_size=sp(14), bold=True,
@@ -1194,7 +1209,6 @@ class JuniorDoctor(App):
             btn1.bind(on_release=lambda *_: (dropdown.dismiss(), self.open_topic_search(specialty, topic)))
             dropdown.add_widget(btn1)
             
-            # خيار المفضلة
             btn2 = Button(text=fav_text, size_hint_y=None, height=dp(45),
                           background_normal="", background_color=get_color_from_hex(SURFACE),
                           color=get_color_from_hex(TEXT), font_size=sp(14), bold=True,
