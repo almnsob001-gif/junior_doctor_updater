@@ -1,11 +1,11 @@
 [app]
-title = Junior Doctor Test
-package.name = juniordoctor_updater_v01
+title = Junior Doctor
+package.name = juniordoctor_v85
 package.domain = org.juniordoctor
 source.dir = .
 source.include_exts = py,png,jpg,jpeg,kv,atlas,ttf,json,txt
 icon.filename = %(source.dir)s/icon.png
-version = 0.1
+version = 8.5
 
 requirements = python3==3.10.12,hostpython3==3.10.12,kivy==2.3.0,cython==0.29.34
 
