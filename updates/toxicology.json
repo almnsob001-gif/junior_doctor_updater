@@ -1,0 +1,44 @@
+{
+  "Toxicology": {
+    "A. General Toxicology": {
+      "Initial Assessment of the Poisoned Patient": [["01 — DEFINITION", "info", "Page under development."]],
+      "Toxidromes and Clinical Recognition": [["01 — DEFINITION", "info", "Page under development."]],
+      "Gastrointestinal Decontamination": [["01 — DEFINITION", "info", "Page under development."]],
+      "Enhanced Elimination and Hemodialysis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Antidotes and Emergency Antidote Guide": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "B. Medication Poisoning": {
+      "Paracetamol (Acetaminophen) Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Salicylate Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Opioid Toxicity": [["01 — DEFINITION", "info", "Page under development."]],
+      "Benzodiazepine and Sedative Overdose": [["01 — DEFINITION", "info", "Page under development."]],
+      "Tricyclic Antidepressant (TCA) Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Beta-Blocker Toxicity": [["01 — DEFINITION", "info", "Page under development."]],
+      "Calcium Channel Blocker Toxicity": [["01 — DEFINITION", "info", "Page under development."]],
+      "Digoxin Toxicity": [["01 — DEFINITION", "info", "Page under development."]],
+      "Insulin and Sulfonylurea Poisoning": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "C. Chemicals and Toxic Alcohols": {
+      "Organophosphate and Carbamate Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Methanol Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Ethylene Glycol Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Carbon Monoxide Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Cyanide Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Corrosive Ingestion": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "D. Other High-Risk Poisonings": {
+      "Iron Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Lithium Toxicity": [["01 — DEFINITION", "info", "Page under development."]],
+      "Valproate Toxicity": [["01 — DEFINITION", "info", "Page under development."]],
+      "Isoniazid Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Methemoglobinemia and Oxidizing Agents": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "E. Environmental and Special Toxicology": {
+      "Hydrocarbon Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Other Pesticide Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
+      "Snakebite and Envenomation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Scorpion Sting and Dangerous Bites": [["01 — DEFINITION", "info", "Page under development."]],
+      "Toxicologic Cardiac Arrest and Refractory Shock": [["01 — DEFINITION", "info", "Page under development."]]
+    }
+  }
+}
