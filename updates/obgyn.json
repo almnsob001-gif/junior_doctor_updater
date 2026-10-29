@@ -1,0 +1,56 @@
+{
+  "Obstetric & Gynecological": {
+    "Obstetric Hemorrhage & Shock": {
+      "Postpartum Hemorrhage (PPH)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Placental Abruption": [["01 — DEFINITION", "info", "Page under development."]],
+      "Placenta Previa with Major Bleeding": [["01 — DEFINITION", "info", "Page under development."]],
+      "Uterine Rupture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Retained Placenta": [["01 — DEFINITION", "info", "Page under development."]],
+      "Amniotic Fluid Embolism (AFE)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Severe Vaginal/Cervical Laceration": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Obstetric Hemorrhagic Shock": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Hypertensive Disorders": {
+      "Severe Preeclampsia and Eclampsia": [["01 — DEFINITION", "info", "Page under development."]],
+      "HELLP Syndrome": [["01 — DEFINITION", "info", "Page under development."]],
+      "Postpartum Headache: Stroke, CVST, and Hemorrhage": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Early Pregnancy & Ectopic": {
+      "Ruptured Ectopic Pregnancy": [["01 — DEFINITION", "info", "Page under development."]],
+      "Miscarriage with Hemorrhage": [["01 — DEFINITION", "info", "Page under development."]],
+      "Septic Miscarriage": [["01 — DEFINITION", "info", "Page under development."]],
+      "Hyperemesis Gravidarum": [["01 — DEFINITION", "info", "Page under development."]],
+      "Ovarian Torsion in Pregnancy": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Labor & Delivery Emergencies": {
+      "Umbilical Cord Prolapse": [["01 — DEFINITION", "info", "Page under development."]],
+      "Shoulder Dystocia": [["01 — DEFINITION", "info", "Page under development."]],
+      "Preterm Prelabor Rupture of Membranes (PPROM)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Preterm Labor": [["01 — DEFINITION", "info", "Page under development."]],
+      "Breech Presentation and Complicated Delivery": [["01 — DEFINITION", "info", "Page under development."]],
+      "Multiple Pregnancy with Complications": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Maternal Critical Care": {
+      "Maternal Sepsis and Septic Shock": [["01 — DEFINITION", "info", "Page under development."]],
+      "Maternal Cardiac Arrest": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pulmonary Embolism in Pregnancy and Postpartum": [["01 — DEFINITION", "info", "Page under development."]],
+      "Trauma in Pregnancy": [["01 — DEFINITION", "info", "Page under development."]],
+      "Postpartum Venous Thromboembolism": [["01 — DEFINITION", "info", "Page under development."]],
+      "Peripartum Cardiomyopathy": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Fatty Liver of Pregnancy (AFLP)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Peripartum Aortic Dissection": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pregnancy-Associated AKI": [["01 — DEFINITION", "info", "Page under development."]],
+      "Severe Hypoglycemia and DKA": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Gynecologic Emergencies": {
+      "Ovarian Torsion": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Heavy Uterine Bleeding": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pelvic Inflammatory Disease (PID) with Sepsis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Ruptured Hemorrhagic Ovarian Cyst": [["01 — DEFINITION", "info", "Page under development."]],
+      "Tubo-Ovarian Abscess (TOA)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Uterine Arteriovenous Malformation (AVM)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Ovarian Hyperstimulation Syndrome (OHSS)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Postpartum Endometritis": [["01 — DEFINITION", "info", "Page under development."]]
+    }
+  }
+}
