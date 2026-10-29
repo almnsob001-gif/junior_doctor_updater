@@ -1,0 +1,44 @@
+{
+  "ENT Emergencies": {
+    "Otology (Ear & Hearing)": {
+      "Acute Mastoiditis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Sudden Sensorineural Hearing Loss": [["01 — DEFINITION", "info", "Page under development."]],
+      "Necrotizing Otitis Externa": [["01 — DEFINITION", "info", "Page under development."]],
+      "Ear Canal Foreign Body and Button Battery": [["01 — DEFINITION", "info", "Page under development."]],
+      "Temporal Bone Fracture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Otitis Media with Intracranial Complications": [["01 — DEFINITION", "info", "Page under development."]],
+      "Spontaneous or Traumatic Ear Bleeding": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Vertigo with Neurological Red Flags": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Rhinology (Nose & Sinuses)": {
+      "Epistaxis (Nosebleed)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Nasal Septal Hematoma": [["01 — DEFINITION", "info", "Page under development."]],
+      "Orbital Cellulitis and Orbital Abscess": [["01 — DEFINITION", "info", "Page under development."]],
+      "Complicated Acute Bacterial Sinusitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Invasive Fungal Rhinosinusitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Nasal Foreign Body and Nasal Button Battery": [["01 — DEFINITION", "info", "Page under development."]],
+      "Cerebrospinal Fluid Rhinorrhea and Otorrhea": [["01 — DEFINITION", "info", "Page under development."]],
+      "Severe Epistaxis Refractory to Initial Treatment": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Pharyngology & Deep Neck Infections": {
+      "Peritonsillar Abscess (Quinsy)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Retropharyngeal Abscess": [["01 — DEFINITION", "info", "Page under development."]],
+      "Ludwig's Angina": [["01 — DEFINITION", "info", "Page under development."]],
+      "Parapharyngeal Abscess": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Laryngology & Upper Airway": {
+      "Epiglottitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Foreign Body in Upper Airway": [["01 — DEFINITION", "info", "Page under development."]],
+      "Laryngeal Trauma": [["01 — DEFINITION", "info", "Page under development."]],
+      "Angioedema Affecting the Upper Airway": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Laryngeal Edema and Stridor": [["01 — DEFINITION", "info", "Page under development."]],
+      "Tracheostomy Emergency": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Complications of Tracheostomy": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Head, Neck & Esophageal Emergencies": {
+      "Esophageal Food Bolus Impaction": [["01 — DEFINITION", "info", "Page under development."]],
+      "Caustic Injury of the Upper Aerodigestive Tract": [["01 — DEFINITION", "info", "Page under development."]],
+      "Facial Nerve Injury in ENT Emergencies": [["01 — DEFINITION", "info", "Page under development."]]
+    }
+  }
+}
