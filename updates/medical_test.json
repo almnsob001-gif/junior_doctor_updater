@@ -1,12 +1,18 @@
 {
-  "Test Emergency Topic": [
-    ["01 — DEFINITION", "info", "This is a test topic downloaded from the internet!"],
-    ["02 — TREATMENT", "success", "This update system works perfectly."]
-  ],
-  "My New Topic": [
-    ["01 — DEFINITION", "info", "هذا موضوع جديد قمت بإضافته بنفسي."],
-    ["02 — CLINICAL FEATURES", "info", "يمكنك كتابة أي شيء هنا."],
-    ["03 — TREATMENT", "success", "Dose: Paracetamol 1g"],
-    ["04 — WARNING", "danger", "This is a red warning section."]
-  ]
+  "Medical Emergencies": {
+    "General": {
+      "Test Emergency Topic": [
+        ["01 — DEFINITION", "info", "This is a test topic downloaded from the internet!"],
+        ["02 — TREATMENT", "success", "This update system works perfectly."]
+      ]
+    }
+  },
+  "ENT Emergencies": {
+    "General": {
+      "New ENT Topic": [
+        ["01 — DEFINITION", "info", "This is a new ENT topic from the internet!"],
+        ["02 — TREATMENT", "success", "Dose: Amoxicillin 500mg"]
+      ]
+    }
+  }
 }
