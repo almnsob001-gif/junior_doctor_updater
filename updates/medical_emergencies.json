@@ -1,113 +1,16 @@
 {
   "Medical Emergencies": {
-    "Cardiovascular": {
-      "Adult Cardiac Arrest": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Coronary Syndrome (ACS)": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Heart Failure and Cardiogenic Pulmonary Edema": [["01 — DEFINITION", "info", "Page under development."]],
-      "Cardiogenic Shock": [["01 — DEFINITION", "info", "Page under development."]],
-      "Symptomatic Bradycardia": [["01 — DEFINITION", "info", "Page under development."]],
-      "Adult Tachyarrhythmias": [["01 — DEFINITION", "info", "Page under development."]],
-      "Hypertensive Emergency": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Aortic Dissection": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Pericardial Tamponade": [["01 — DEFINITION", "info", "Page under development."]],
-      "Atrial Fibrillation with RVR": [["01 — DEFINITION", "info", "Page under development."]],
-      "ACS Complications and Deterioration": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute RV Failure and Obstructive Shock": [["01 — DEFINITION", "info", "Page under development."]],
-      "Infective Endocarditis with Acute Complications": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Myocarditis and Fulminant Myocarditis": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Limb Ischemia": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Respiratory": {
-      "Acute Pulmonary Embolism (PE)": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Severe Asthma": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Exacerbation of COPD": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Respiratory Failure": [["01 — DEFINITION", "info", "Page under development."]],
-      "Pneumothorax and Tension Pneumothorax": [["01 — DEFINITION", "info", "Page under development."]],
-      "Anaphylaxis": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Severe Asthma and Near-Fatal Asthma": [["01 — DEFINITION", "info", "Page under development."]],
-      "Massive Hemoptysis and Airway Bleeding": [["01 — DEFINITION", "info", "Page under development."]],
-      "Sickle Cell Acute Chest Syndrome": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Angioedema with Airway Compromise": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Epiglottitis": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Gastrointestinal": {
-      "Acute Upper Gastrointestinal Bleeding": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Pancreatitis": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Liver Failure and Hepatic Encephalopathy": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Upper Gastrointestinal Bleeding and Variceal Hemorrhage": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Pancreatitis and Severe Pancreatitis": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Cholangitis and Obstructive Jaundice": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Mesenteric Ischemia": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Esophageal Variceal Hemorrhage": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Renal": {
-      "Acute Kidney Injury (AKI) and Uremic Emergencies": [["01 — DEFINITION", "info", "Page under development."]],
-      "Severe Hyperkalemia and Life-Threatening Electrolyte Disorders": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Severe Hyponatremia and Sodium Disorders": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Severe Metabolic Acidosis": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Hyperkalemia and ECG Changes": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Kidney Injury and Emergency Dialysis Indications": [["01 — DEFINITION", "info", "Page under development."]],
-      "Hypernatremia and Severe Water Deficit": [["01 — DEFINITION", "info", "Page under development."]],
-      "Pulmonary–Renal Syndrome and Diffuse Alveolar Hemorrhage": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Urinary Retention": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Severe Hyperphosphatemia": [["01 — DEFINITION", "info", "Page under development."]],
-      "Nephrotic Syndrome": [["01 — DEFINITION", "info", "Page under development."]],
-      "Nephritic Syndrome": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Endocrinology": {
-      "Hypoglycemia and Hyperglycemic Crises": [["01 — DEFINITION", "info", "Page under development."]],
-      "Adrenal Crisis and Acute Adrenal Insufficiency": [["01 — DEFINITION", "info", "Page under development."]],
-      "Insulin-Related Emergencies and Severe Hypoglycemia": [["01 — DEFINITION", "info", "Page under development."]],
-      "Thyroid Storm and Myxedema Coma": [["01 — DEFINITION", "info", "Page under development."]],
-      "Adrenal Crisis (Acute Adrenal Insufficiency)": [["01 — DEFINITION", "info", "Page under development."]],
-      "Hyperosmolar Hyperglycemic State (HHS)": [["01 — DEFINITION", "info", "Page under development."]],
-      "Severe Calcium Disorders: Hypercalcemia and Hypocalcemia": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Adrenal Incidental Hemorrhage with Adrenal Crisis": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Neurology": {
-      "Acute Ischemic Stroke": [["01 — DEFINITION", "info", "Page under development."]],
-      "Spontaneous Intracerebral Hemorrhage (ICH)": [["01 — DEFINITION", "info", "Page under development."]],
-      "Convulsive Status Epilepticus": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Altered Mental Status": [["01 — DEFINITION", "info", "Page under development."]],
-      "Guillain–Barré Syndrome (GBS)": [["01 — DEFINITION", "info", "Page under development."]],
-      "Myasthenic Crisis": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Spinal Cord Compression": [["01 — DEFINITION", "info", "Page under development."]],
-      "Cauda Equina Syndrome": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Infectious": {
-      "Acute Meningitis and Encephalitis": [["01 — DEFINITION", "info", "Page under development."]],
-      "Sepsis and Septic Shock": [["01 — DEFINITION", "info", "Page under development."]],
-      "Dengue Fever and Severe Dengue": [["01 — DEFINITION", "info", "Page under development."]],
-      "Chikungunya": [["01 — DEFINITION", "info", "Page under development."]],
-      "Malaria and Severe Malaria": [["01 — DEFINITION", "info", "Page under development."]],
-      "Enteric Fever (Typhoid)": [["01 — DEFINITION", "info", "Page under development."]],
-      "Cholera and Severe Dehydration": [["01 — DEFINITION", "info", "Page under development."]],
-      "Retropharyngeal and Parapharyngeal Abscess": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Toxicology": {
-      "Acute Poisoning and Toxicological Emergencies": [["01 — DEFINITION", "info", "Page under development."]],
-      "Specific Antidotes and High-Risk Poisonings": [["01 — DEFINITION", "info", "Page under development."]],
-      "Carbon Monoxide (CO) Poisoning": [["01 — DEFINITION", "info", "Page under development."]],
-      "Serotonin Syndrome (Serotonin Toxicity)": [["01 — DEFINITION", "info", "Page under development."]],
-      "Acute Opioid Toxicity": [["01 — DEFINITION", "info", "Page under development."]],
-      "Local Anesthetic Systemic Toxicity (LAST)": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Environmental": {
-      "Heat Stroke and Hypothermia": [["01 — DEFINITION", "info", "Page under development."]],
-      "High-Altitude Pulmonary Edema (HAPE)": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Oncology": {
-      "Tumor Lysis Syndrome": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Hematology": {
-      "Acute Hemolytic Transfusion Reaction": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Ophthalmology": {
-      "Acute Angle-Closure Glaucoma": [["01 — DEFINITION", "info", "Page under development."]],
-      "Central Retinal Artery Occlusion": [["01 — DEFINITION", "info", "Page under development."]]
-    },
-    "Gastrointestinal": {
-      "Peptic Ulcer Disease (PUD)": [["01 — DEFINITION", "info", "Page under development."]]
-    }
+    "Cardiovascular": {},
+    "Respiratory": {},
+    "Gastrointestinal": {},
+    "Renal": {},
+    "Endocrinology": {},
+    "Neurology": {},
+    "Infectious": {},
+    "Toxicology": {},
+    "Environmental": {},
+    "Oncology": {},
+    "Hematology": {},
+    "Ophthalmology": {}
   }
 }
