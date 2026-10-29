@@ -1,0 +1,59 @@
+{
+  "Orthopedic Emergencies": {
+    "Trauma & General Fractures": {
+      "Open Fracture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Traumatic Amputation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Crush Syndrome": [["01 — DEFINITION", "info", "Page under development."]],
+      "General Safety Checklist": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Upper Limb Injuries": {
+      "Supracondylar Humerus Fracture in Children": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pediatric Forearm Fracture with Neurovascular Compromise": [["01 — DEFINITION", "info", "Page under development."]],
+      "Humeral Shaft Fracture with Radial Nerve Injury": [["01 — DEFINITION", "info", "Page under development."]],
+      "Clavicle Fracture with Skin or Neurovascular Compromise": [["01 — DEFINITION", "info", "Page under development."]],
+      "Monteggia Fracture-Dislocation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Galeazzi Fracture-Dislocation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Elbow Dislocation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Shoulder Dislocation with Neurovascular Risk": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Rotator Cuff Tear After Trauma": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Wrist & Hand Injuries": {
+      "Scaphoid Fracture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Distal Radius Fracture with Neurovascular Compromise": [["01 — DEFINITION", "info", "Page under development."]],
+      "Perilunate Dislocation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Hand Compartment Syndrome": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Lower Limb Injuries": {
+      "Femoral Shaft Fracture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Femoral Neck Fracture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Hip Dislocation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Hip Dislocation with Associated Fracture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pelvic Fracture with Hemorrhage": [["01 — DEFINITION", "info", "Page under development."]],
+      "Knee Dislocation and Popliteal Artery Injury": [["01 — DEFINITION", "info", "Page under development."]],
+      "Tibial Plateau Fracture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Patellar Fracture and Extensor Mechanism Disruption": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Knee Extensor Mechanism Rupture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Ankle Fracture-Dislocation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Calcaneal Fracture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Achilles Tendon Rupture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Achilles Tendon Avulsion or Insertional Rupture": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Spine Injuries": {
+      "Cervical Spine Fracture and Dislocation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Thoracolumbar Spine Fracture": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Spinal Cord Injury": [["01 — DEFINITION", "info", "Page under development."]],
+      "Cauda Equina Syndrome": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Cauda Equina Syndrome": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Osteoporotic Vertebral Compression Fracture": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Vascular & Compartment Emergencies": {
+      "Acute Compartment Syndrome": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Limb Ischemia": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Orthopedic Infections": {
+      "Septic Arthritis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Hematogenous Osteomyelitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Septic Bursitis": [["01 — DEFINITION", "info", "Page under development."]]
+    }
+  }
+}
