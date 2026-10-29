@@ -1,4 +1,18 @@
 {
-  "latest_version": 1.5,
-  "medical_data_url": "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/medical_test.json"
+  "latest_version": 2.0,
+  "medical_data_urls": [
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/medical_emergencies.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/pediatric_emergencies.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/surgical_trauma.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/obgyn.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/ent.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/ophthalmology.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/orthopedics.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/urology.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/toxicology.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/drugs.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/protocols.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/calculators.json",
+    "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/pediatric_calculators.json"
+  ]
 }
