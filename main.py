@@ -488,7 +488,6 @@ class JuniorDoctor(App):
             updates = data_updater.get_latest_updates(self.user_data_dir)
             if updates and updates.get("topics"):
                 self.show_whats_new_popup(updates)
-                # مسح الملف بعد العرض
                 file_path = os.path.join(self.user_data_dir, "latest_updates.json")
                 if os.path.exists(file_path):
                     os.remove(file_path)
@@ -501,16 +500,36 @@ class JuniorDoctor(App):
             if not topics:
                 return
 
-            content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
+            new_topics = []
+            updated_topics = []
             
-            content.add_widget(make_wrapped_label(f"What's New in Update (v{updates_data.get('version')})", 14, TEAL, bold=True))
+            # فصل المواضيع بناءً على الكلمات المفتاحية
+            for t in topics:
+                clean_t = t.replace("✨", "").replace("🔄", "").strip()
+                if "NEW:" in clean_t:
+                    new_topics.append(clean_t.replace("NEW:", "").strip())
+                elif "UPDATED:" in clean_t:
+                    updated_topics.append(clean_t.replace("UPDATED:", "").strip())
+                else:
+                    new_topics.append(clean_t) # في حال لم يكن هناك كلمة مفتاحية
+
+            content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
+            content.add_widget(make_wrapped_label(f"What's New in Update (v{updates_data.get('version')})", 16, TEAL, bold=True))
             
             scroll = ScrollView()
-            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
+            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(6))
             list_layout.bind(minimum_height=list_layout.setter("height"))
             
-            for t in topics:
-                list_layout.add_widget(make_wrapped_label(t, 13, TEXT))
+            if new_topics:
+                list_layout.add_widget(make_wrapped_label("New Topics Added:", 14, TEAL, bold=True))
+                for t in new_topics:
+                    list_layout.add_widget(make_wrapped_label(f"- {t}", 13, TEXT))
+                list_layout.add_widget(BoxLayout(size_hint_y=None, height=dp(12))) # مسافة بين القسمين
+                
+            if updated_topics:
+                list_layout.add_widget(make_wrapped_label("Existing Topics Updated:", 14, BLUE, bold=True))
+                for t in updated_topics:
+                    list_layout.add_widget(make_wrapped_label(f"- {t}", 13, TEXT))
                 
             scroll.add_widget(list_layout)
             content.add_widget(scroll)
@@ -916,7 +935,6 @@ class JuniorDoctor(App):
         main_layout.add_widget(scroll)
         screen.add_widget(main_layout)
         
-        # عرض النافذة المنبثقة للتحديثات بعد تحميل الشاشة بنصف ثانية
         Clock.schedule_once(lambda dt: self.check_and_show_updates(), 0.5)
 
     # ================= SEARCH (Global - Titles Only) =================
