@@ -1,12 +1,11 @@
 # ============================================================
-# data_updater.py — النسخة المطابقة تماماً لملفاتك على GitHub
+# data_updater.py — نسخة الملفات المنفصلة (Modular System)
 # ============================================================
 import os
 import json
 import urllib.request
 import ssl
 
-# رابط المستودع الخاص بك
 REPO_RAW = "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main"
 VERSION_URL = f"{REPO_RAW}/updates/version.json"
 
@@ -22,52 +21,67 @@ def _safe_path(user_data_dir, name):
         return os.path.join(os.path.expanduser("~"), name)
 
 def _fetch(url, timeout=10):
-    """جلب البيانات مع تخطي حماية SSL"""
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
-    
     req = urllib.request.Request(url, headers={"User-Agent": "JuniorDoctor/1.0"})
     with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:
         return resp.read().decode("utf-8")
 
 def check_for_updates(user_data_dir, current_version=1.0):
-    """يقرأ ملف version.json ويحمل الرابط الموجود بداخله"""
     err_path = _safe_path(user_data_dir, _ERROR_FILE)
     try:
-        # 1. جلب ملف الإصدارات (مهلة 3 ثوانٍ فقط لكي لا يعلق التطبيق بدون نت)
+        # 1. جلب ملف الإصدارات
         raw_version = _fetch(VERSION_URL, timeout=3)
         version_info = json.loads(raw_version)
         
-        # قراءة الأسماء بالضبط كما كتبتها في GitHub (latest_version و medical_data_url)
         latest_version = float(version_info.get("latest_version", current_version))
-        medical_data_url = version_info.get("medical_data_url")
+        urls_list = version_info.get("medical_data_urls", [])
 
-        # 2. إذا كان الإصدار الحالي هو الأحدث، أو لم يوجد رابط، لا تفعل شيئاً
-        if latest_version <= float(current_version) or not medical_data_url:
-            print("[updater] App is up to date or no data URL provided.")
+        # دعم التوافق مع النسخة القديمة إذا كان الرابط مفرداً
+        if not urls_list and version_info.get("medical_data_url"):
+            urls_list = [version_info.get("medical_data_url")]
+
+        if latest_version <= float(current_version) or not urls_list:
             return
 
-        # 3. يوجد تحديث -> قم بتحميل البيانات من الرابط المباشر
-        print(f"[updater] New version {latest_version} found. Downloading from {medical_data_url}...")
-        raw_data = _fetch(medical_data_url, timeout=15)
-        new_data = json.loads(raw_data)
+        # 2. تحميل ودمج جميع الملفات في قاموس واحد
+        print(f"[updater] Downloading {len(urls_list)} files for version {latest_version}...")
+        
+        merged_data = {}
+        for url in urls_list:
+            try:
+                raw_data = _fetch(url, timeout=15)
+                part_data = json.loads(raw_data)
+                
+                # دمج ذكي للملفات
+                for spec, subs in part_data.items():
+                    if spec not in merged_data:
+                        merged_data[spec] = {}
+                    for sub, topics in subs.items():
+                        if sub not in merged_data[spec]:
+                            merged_data[spec][sub] = {}
+                        for topic, content in topics.items():
+                            merged_data[spec][sub][topic] = content
+                            
+                print(f"[updater] Successfully loaded: {url.split('/')[-1]}")
+            except Exception as e:
+                print(f"[updater] Failed to load {url}: {e}")
 
-        # 4. حفظ البيانات الجديدة بأمان
-        data_path = _safe_path(user_data_dir, _DATA_FILE)
-        temp_path = data_path + ".tmp"
-        with open(temp_path, "w", encoding="utf-8") as f:
-            json.dump(new_data, f, ensure_ascii=False, indent=2)
-        os.replace(temp_path, data_path)
+        # 3. حفظ البيانات المدمجة
+        if merged_data:
+            data_path = _safe_path(user_data_dir, _DATA_FILE)
+            temp_path = data_path + ".tmp"
+            with open(temp_path, "w", encoding="utf-8") as f:
+                json.dump(merged_data, f, ensure_ascii=False, indent=2)
+            os.replace(temp_path, data_path)
 
-        # 5. مسح أي خطأ سابق
-        if os.path.exists(err_path):
-            os.remove(err_path)
+            if os.path.exists(err_path):
+                os.remove(err_path)
 
-        print(f"[updater] Successfully updated to version {latest_version}.")
+        print(f"[updater] All done.")
 
     except Exception as e:
-        # حفظ الخطأ لعرضه في الصفحة الرئيسية إذا حدث خطأ
         print(f"[updater] Update skipped/failed: {e}")
         try:
             with open(err_path, "w", encoding="utf-8") as f:
@@ -76,7 +90,6 @@ def check_for_updates(user_data_dir, current_version=1.0):
             pass
 
 def get_error_message(user_data_dir):
-    """تقرأ ملف الأخطاء إن وجد (لعرضه في الصفحة الرئيسية)."""
     path = _safe_path(user_data_dir, _ERROR_FILE)
     if os.path.exists(path):
         try:
@@ -88,7 +101,6 @@ def get_error_message(user_data_dir):
     return None
 
 def load_downloaded_data(user_data_dir):
-    """تقرأ البيانات المحملة بعد أن ينتهي التحميل."""
     path = _safe_path(user_data_dir, _DATA_FILE)
     if not os.path.exists(path):
         return {}
