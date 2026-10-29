@@ -1,5 +1,5 @@
 # ============================================================
-# data_updater.py — النسخة الخلفية (تفتح التطبيق فوراً)
+# data_updater.py — النسخة الذكية (مع ميزة "ما الجديد")
 # ============================================================
 import os
 import json
@@ -14,6 +14,7 @@ VERSION_URL = f"{REPO_RAW}/updates/version.json"
 _ERROR_FILE = "update_error.txt"
 _DATA_FILE = "downloaded_data.json"
 _LAST_VERSION_FILE = "last_version.txt"
+_UPDATES_LOG_FILE = "latest_updates.json" # ملف جديد لحفظ سجل التحديثات
 
 def _safe_path(user_data_dir, name):
     try:
@@ -35,16 +36,17 @@ def _download_single_file(url):
     try:
         raw_data = _fetch(url, timeout=15)
         return json.loads(raw_data)
-    except Exception:
+    except Exception as e:
+        print(f"[updater] Failed to parse {url}: {e}")
         return None
 
-# هذه هي الدالة التي تعمل في الخلفية
 def _background_update_worker(user_data_dir, current_version):
     err_path = _safe_path(user_data_dir, _ERROR_FILE)
     last_ver_path = _safe_path(user_data_dir, _LAST_VERSION_FILE)
+    data_path = _safe_path(user_data_dir, _DATA_FILE)
+    updates_log_path = _safe_path(user_data_dir, _UPDATES_LOG_FILE)
     
     try:
-        # 1. قراءة الإصدار المحفوظ في الهاتف
         local_version = 0.0
         if os.path.exists(last_ver_path):
             try:
@@ -53,7 +55,6 @@ def _background_update_worker(user_data_dir, current_version):
             except:
                 pass
 
-        # 2. جلب ملف الإصدارات من GitHub (في الخلفية)
         raw_version = _fetch(VERSION_URL, timeout=5)
         version_info = json.loads(raw_version)
         
@@ -63,37 +64,70 @@ def _background_update_worker(user_data_dir, current_version):
         if not urls_list and version_info.get("medical_data_url"):
             urls_list = [version_info.get("medical_data_url")]
 
-        # 3. المقارنة: إذا كان إصدار الهاتف هو الأحدث، اخرج بصمت
-        if latest_version <= local_version:
+        if latest_version <= local_version or not urls_list:
             return
 
-        if not urls_list:
-            return
-
-        # 4. تحميل الملفات (في الخلفية)
-        merged_data = {}
+        # تحميل الملفات
+        new_downloaded_data = {}
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
             future_to_url = {executor.submit(_download_single_file, url): url for url in urls_list}
             for future in concurrent.futures.as_completed(future_to_url):
                 part_data = future.result()
                 if part_data:
                     for spec, subs in part_data.items():
-                        if spec not in merged_data:
-                            merged_data[spec] = {}
+                        if spec not in new_downloaded_data:
+                            new_downloaded_data[spec] = {}
                         for sub, topics in subs.items():
-                            if sub not in merged_data[spec]:
-                                merged_data[spec][sub] = {}
+                            if sub not in new_downloaded_data[spec]:
+                                new_downloaded_data[spec][sub] = {}
                             for topic, content in topics.items():
-                                merged_data[spec][sub][topic] = content
+                                new_downloaded_data[spec][sub][topic] = content
 
-        # 5. حفظ البيانات الجديدة بصمت
-        if merged_data:
-            data_path = _safe_path(user_data_dir, _DATA_FILE)
+        if new_downloaded_data:
+            # قراءة البيانات القديمة للمقارنة
+            existing_data = {}
+            if os.path.exists(data_path):
+                try:
+                    with open(data_path, "r", encoding="utf-8") as f:
+                        existing_data = json.load(f) or {}
+                except Exception:
+                    pass
+            
+            # مقارنة البيانات لمعرفة "ما الجديد"
+            updated_log = []
+            for spec, subs in new_downloaded_data.items():
+                for sub, topics in subs.items():
+                    for topic, content in topics.items():
+                        old_content = existing_data.get(spec, {}).get(sub, {}).get(topic)
+                        if old_content is None:
+                            updated_log.append(f"✨ NEW: {topic}")
+                        elif old_content != content:
+                            updated_log.append(f"🔄 UPDATED: {topic}")
+
+            # دمج البيانات الجديدة مع القديمة
+            for spec, subs in new_downloaded_data.items():
+                if spec not in existing_data:
+                    existing_data[spec] = {}
+                for sub, topics in subs.items():
+                    if sub not in existing_data[spec]:
+                        existing_data[spec][sub] = {}
+                    for topic, content in topics.items():
+                        existing_data[spec][sub][topic] = content
+                        
             temp_path = data_path + ".tmp"
             with open(temp_path, "w", encoding="utf-8") as f:
-                json.dump(merged_data, f, ensure_ascii=False, indent=2)
+                json.dump(existing_data, f, ensure_ascii=False, indent=2)
             os.replace(temp_path, data_path)
 
+            # حفظ سجل التحديثات (إذا كان هناك تحديثات فعلية)
+            if updated_log:
+                with open(updates_log_path, "w", encoding="utf-8") as f:
+                    json.dump({
+                        "version": latest_version,
+                        "topics": updated_log
+                    }, f, ensure_ascii=False, indent=2)
+
+            # حفظ رقم الإصدار الجديد
             with open(last_ver_path, "w", encoding="utf-8") as f:
                 f.write(str(latest_version))
 
@@ -107,11 +141,7 @@ def _background_update_worker(user_data_dir, current_version):
         except Exception:
             pass
 
-# هذه الدالة التي يستدعيها main.py
 def check_for_updates(user_data_dir, current_version=1.0):
-    """
-    تقوم بتشغيل التحديث في الخلفية وتعود فوراً (لا تعطل فتح التطبيق)
-    """
     thread = threading.Thread(target=_background_update_worker, args=(user_data_dir, current_version))
     thread.daemon = True
     thread.start()
@@ -136,3 +166,14 @@ def load_downloaded_data(user_data_dir):
             return json.load(f) or {}
     except Exception:
         return {}
+
+# دالة جديدة ليستخدمها main.py لقراءة سجل التحديثات
+def get_latest_updates(user_data_dir):
+    path = _safe_path(user_data_dir, _UPDATES_LOG_FILE)
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return None
