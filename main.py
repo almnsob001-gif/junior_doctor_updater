@@ -8,7 +8,7 @@ import os
 import json
 import webbrowser
 import datetime
-import re  # <--- تمت إضافة هذا المكتب للبحث الذكي
+import re
 import data_medical
 import data_pediatric
 import data_obgyn
@@ -37,6 +37,7 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.switch import Switch
 from kivy.uix.popup import Popup
+from kivy.uix.dropdown import DropDown
 from kivy.graphics import Color, RoundedRectangle, Ellipse
 from kivy.core.text import LabelBase
 from kivy.core.clipboard import Clipboard
@@ -210,21 +211,19 @@ def make_wrapped_label(text, size=14, color=TEXT, bold=False):
     lab.bind(texture_size=lambda i, s: setattr(lab, 'height', s[1] + dp(6)))
     return lab
 
-# دالة تظليل النص بأمان دون إفساد الألوان الأصلية
 def highlight_text(text, query):
     if not query:
         return text
-    # فصل النص الأصلي عن الأكواد (Tags) لتجنب تظليل أكواد الألوان
     parts = re.split(r'(\[[^\]]+\])', str(text))
     highlighted_parts = []
     for part in parts:
         if part.startswith('[') and part.endswith(']'):
             highlighted_parts.append(part)
         else:
-            # تظليل الكلمة باللون الأحمر والخط العريض
             highlighted_part = re.sub(f'(?i)({re.escape(query)})', r'[color=#DC2626][b]\1[/b][/color]', part)
             highlighted_parts.append(highlighted_part)
     return "".join(highlighted_parts)
+
 
 class Card(BoxLayout):
     def __init__(self, bg=WHITE, radius=24, padding=20, **kwargs):
@@ -254,8 +253,8 @@ class JDButton(Button):
         self.bind(size=lambda i, v: setattr(i, 'text_size', (v[0] - dp(20), None)))
 
 class ModernHeader(BoxLayout):
-    def __init__(self, title, subtitle="", bg_color=HEADER_NAVY, title_color=WHITE, subtitle_color="#94A3B8", **kwargs):
-        super().__init__(orientation="horizontal", size_hint_y=None, height=dp(90), spacing=dp(15), padding=[dp(20), dp(15), dp(20), dp(15)], **kwargs)
+    def __init__(self, title, subtitle="", bg_color=HEADER_NAVY, title_color=WHITE, subtitle_color="#94A3B8", menu_callback=None, **kwargs):
+        super().__init__(orientation="horizontal", size_hint_y=None, height=dp(90), spacing=dp(10), padding=[dp(20), dp(15), dp(15), dp(15)], **kwargs)
         
         with self.canvas.before:
             Color(*get_color_from_hex(bg_color))
@@ -275,9 +274,20 @@ class ModernHeader(BoxLayout):
         title_layout.add_widget(title_box)
         self.add_widget(title_layout)
         
+        # إضافة زر النقاط الثلاث (⋮) في الزاوية
+        if menu_callback:
+            menu_btn = Button(
+                text="⋮", font_size=sp(24), size_hint=(None, 1), width=dp(40), 
+                background_normal="", background_down="", 
+                background_color=(0,0,0,0), color=get_color_from_hex(WHITE), bold=True
+            )
+            menu_btn.bind(on_release=lambda *_: menu_callback(menu_btn))
+            self.add_widget(menu_btn)
+        
         def update_header_height(*_):
             self.height = max(dp(90), title_box.height + dp(30))
         title_box.bind(height=update_header_height)
+
 
 # ================= APP CLASS =================
 class JuniorDoctor(App):
@@ -572,7 +582,7 @@ class JuniorDoctor(App):
         if not favs:
             card = Card(bg=CARD_BLUE, padding=20)
             card.add_widget(make_wrapped_label("No favorites yet.", 16, NAVY, bold=True))
-            card.add_widget(make_wrapped_label("Tap the 'Add to Favorites' button on any topic to save it here.", 13, MUTED))
+            card.add_widget(make_wrapped_label("Use the 3-dots menu on any topic to add it here.", 13, MUTED))
             content.add_widget(card)
         else:
             for spec, topic in favs:
@@ -933,7 +943,10 @@ class JuniorDoctor(App):
         top_area = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10), padding=[dp(20), dp(10), dp(20), dp(10)])
         top_area.bind(minimum_height=top_area.setter("height"))
 
-        search_box = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(55), padding=[dp(15), dp(10)])
+        # ================= تعديل شريط البحث وإضافة الأسهم =================
+        search_container = BoxLayout(orientation="horizontal", size_hint_y=None, height=dp(60), spacing=dp(10))
+        
+        search_box = BoxLayout(orientation="horizontal", size_hint=(1, 1))
         draw_card_bg(search_box, WHITE, radius=20, shadow=True)
         search_input = TextInput(hint_text="Type to highlight matches...", multiline=False,
                                  font_size=sp(14), background_normal="", background_active="",
@@ -943,12 +956,20 @@ class JuniorDoctor(App):
                                  hint_text_color=get_color_from_hex(MUTED),
                                  padding=[dp(10), 0, dp(10), 0])
         search_box.add_widget(search_input)
-        top_area.add_widget(search_box)
+        search_container.add_widget(search_box)
 
-        next_btn = JDButton("Jump to Next Match", bg=VIOLET, height=45, radius=12, font_size=14)
-        next_btn.disabled = True
-        next_btn.opacity = 0.5
-        top_area.add_widget(next_btn)
+        btn_prev = JDButton("▲", bg=INFO_BAR, height=55, radius=12, font_size=16, size_hint=(None, 1), width=dp(50))
+        btn_prev.disabled = True
+        btn_prev.opacity = 0.5
+        search_container.add_widget(btn_prev)
+
+        btn_next = JDButton("▼", bg=INFO_BAR, height=55, radius=12, font_size=16, size_hint=(None, 1), width=dp(50))
+        btn_next.disabled = True
+        btn_next.opacity = 0.5
+        search_container.add_widget(btn_next)
+
+        top_area.add_widget(search_container)
+        # ==================================================================
 
         scroll = ScrollView(do_scroll_x=False)
         results = BoxLayout(orientation="vertical", spacing=dp(12), size_hint_y=None, padding=[dp(20), dp(10), dp(20), dp(20)])
@@ -1004,8 +1025,10 @@ class JuniorDoctor(App):
             q_lower = q.lower().strip()
 
             if not q_lower:
-                next_btn.disabled = True
-                next_btn.opacity = 0.5
+                btn_prev.disabled = True
+                btn_prev.opacity = 0.5
+                btn_next.disabled = True
+                btn_next.opacity = 0.5
                 for item in sections:
                     results.add_widget(render_section(item, ""))
                 return
@@ -1023,25 +1046,40 @@ class JuniorDoctor(App):
 
             if match_count == 0:
                 results.add_widget(make_wrapped_label(f"No matches for '{q}' in this topic.", 14, RED, bold=True))
-                next_btn.disabled = True
-                next_btn.opacity = 0.5
+                btn_prev.disabled = True
+                btn_prev.opacity = 0.5
+                btn_next.disabled = True
+                btn_next.opacity = 0.5
             else:
-                next_btn.disabled = False
-                next_btn.opacity = 1
-                results.add_widget(make_wrapped_label(f"{match_count} section(s) found. Tap 'Jump' to navigate.", 12, MUTED, bold=True))
+                btn_prev.disabled = False
+                btn_prev.opacity = 1
+                btn_next.disabled = False
+                btn_next.opacity = 1
+                results.add_widget(make_wrapped_label(f"{match_count} section(s) found.", 12, MUTED, bold=True))
+
+        def go_to_prev_match(*_):
+            if not self.topic_match_widgets:
+                return
+            self.current_match_idx -= 1
+            if self.current_match_idx < 0:
+                self.current_match_idx = len(self.topic_match_widgets) - 1
+            
+            target_widget = self.topic_match_widgets[self.current_match_idx]
+            Clock.schedule_once(lambda dt: scroll.scroll_to(target_widget, padding=dp(20)), 0.1)
 
         def go_to_next_match(*_):
             if not self.topic_match_widgets:
                 return
+            self.current_match_idx += 1
             if self.current_match_idx >= len(self.topic_match_widgets):
                 self.current_match_idx = 0
             
             target_widget = self.topic_match_widgets[self.current_match_idx]
-            # Scroll smoothly to the matching card
             Clock.schedule_once(lambda dt: scroll.scroll_to(target_widget, padding=dp(20)), 0.1)
-            self.current_match_idx += 1
 
-        next_btn.bind(on_release=go_to_next_match)
+        btn_prev.bind(on_release=go_to_prev_match)
+        btn_next.bind(on_release=go_to_next_match)
+        
         search_input.bind(text=lambda _, v: perform_topic_search(v))
         perform_topic_search("")
 
@@ -1137,23 +1175,42 @@ class JuniorDoctor(App):
                 subsystem_found = sub
                 break
         self.current_back_action = lambda: self.open_category(specialty, subsystem_found)
-        main_layout.add_widget(ModernHeader(topic, specialty.upper(), bg_color=HEADER_NAVY))
+
+        # دالة إظهار القائمة المنسدلة تحت الزر مباشرة
+        def show_menu(btn):
+            is_fav = self.is_favorite(specialty, topic)
+            fav_text = "Remove from Favorites" if is_fav else "Add to Favorites"
+            
+            dropdown = DropDown()
+            dropdown.width = dp(200)
+            dropdown.auto_width = False
+
+            # خيار البحث
+            btn1 = Button(text="Find in Page", size_hint_y=None, height=dp(45),
+                          background_normal="", background_color=get_color_from_hex(SURFACE),
+                          color=get_color_from_hex(TEXT), font_size=sp(14), bold=True,
+                          halign="left", padding=[dp(15), 0])
+            btn1.bind(size=lambda ins, val: setattr(ins, 'text_size', (val[0]-dp(20), val[1])))
+            btn1.bind(on_release=lambda *_: (dropdown.dismiss(), self.open_topic_search(specialty, topic)))
+            dropdown.add_widget(btn1)
+            
+            # خيار المفضلة
+            btn2 = Button(text=fav_text, size_hint_y=None, height=dp(45),
+                          background_normal="", background_color=get_color_from_hex(SURFACE),
+                          color=get_color_from_hex(TEXT), font_size=sp(14), bold=True,
+                          halign="left", padding=[dp(15), 0])
+            btn2.bind(size=lambda ins, val: setattr(ins, 'text_size', (val[0]-dp(20), val[1])))
+            btn2.bind(on_release=lambda *_: (dropdown.dismiss(), self.toggle_favorite_ui(specialty, topic)))
+            dropdown.add_widget(btn2)
+
+            dropdown.open(btn)
+
+        main_layout.add_widget(ModernHeader(topic, specialty.upper(), bg_color=HEADER_NAVY, menu_callback=show_menu))
 
         scroll = ScrollView(do_scroll_x=False)
         content = BoxLayout(orientation="vertical", spacing=dp(15), size_hint_y=None,
                             padding=[dp(20), dp(10), dp(20), dp(40)])
         content.bind(minimum_height=content.setter("height"))
-
-        search_topic_btn = JDButton("Search inside this Topic", bg=INFO_BAR, height=48, radius=14, font_size=14)
-        search_topic_btn.bind(on_release=lambda *_: self.open_topic_search(specialty, topic))
-        content.add_widget(search_topic_btn)
-
-        is_fav = self.is_favorite(specialty, topic)
-        fav_label = "Remove from Favorites" if is_fav else "Add to Favorites"
-        fav_bg = MUTED if is_fav else VIOLET
-        fav_btn = JDButton(fav_label, bg=fav_bg, height=48, radius=14, font_size=14)
-        fav_btn.bind(on_release=lambda *_: self.toggle_favorite_ui(specialty, topic))
-        content.add_widget(fav_btn)
 
         disclaimer = Card(bg="#FFF3CD", padding=15, radius=15)
         disclaimer.add_widget(make_wrapped_label("MEDICAL DISCLAIMER", 14, "#856404", bold=True))
