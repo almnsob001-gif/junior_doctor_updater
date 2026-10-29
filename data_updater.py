@@ -1,12 +1,12 @@
 # ============================================================
-# data_updater.py — النسخة المطابقة لملفات GitHub الخاصة بك
+# data_updater.py — النسخة المطابقة تماماً لملفاتك على GitHub
 # ============================================================
 import os
 import json
 import urllib.request
 import ssl
 
-# ⚠️ الرابط الأساسي للمستودع الخاص بك
+# رابط المستودع الخاص بك
 REPO_RAW = "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main"
 VERSION_URL = f"{REPO_RAW}/updates/version.json"
 
@@ -32,17 +32,14 @@ def _fetch(url, timeout=10):
         return resp.read().decode("utf-8")
 
 def check_for_updates(user_data_dir, current_version=1.0):
-    """
-    إذا لم يوجد إنترنت: سيفشل الاتصال خلال 3 ثوانٍ ويفتح التطبيق فوراً.
-    إذا وجد إنترنت: سيقرأ ملف version.json ويحمل الرابط الموجود بداخله.
-    """
+    """يقرأ ملف version.json ويحمل الرابط الموجود بداخله"""
     err_path = _safe_path(user_data_dir, _ERROR_FILE)
     try:
         # 1. جلب ملف الإصدارات (مهلة 3 ثوانٍ فقط لكي لا يعلق التطبيق بدون نت)
         raw_version = _fetch(VERSION_URL, timeout=3)
         version_info = json.loads(raw_version)
         
-        # قراءة الأسماء بالضبط كما كتبتها في GitHub
+        # قراءة الأسماء بالضبط كما كتبتها في GitHub (latest_version و medical_data_url)
         latest_version = float(version_info.get("latest_version", current_version))
         medical_data_url = version_info.get("medical_data_url")
 
@@ -70,7 +67,7 @@ def check_for_updates(user_data_dir, current_version=1.0):
         print(f"[updater] Successfully updated to version {latest_version}.")
 
     except Exception as e:
-        # حفظ الخطأ لعرضه في الصفحة الرئيسية
+        # حفظ الخطأ لعرضه في الصفحة الرئيسية إذا حدث خطأ
         print(f"[updater] Update skipped/failed: {e}")
         try:
             with open(err_path, "w", encoding="utf-8") as f:
