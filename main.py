@@ -223,13 +223,10 @@ def make_wrapped_label(text, size=14, color=TEXT, bold=False):
 def highlight_text(text, query):
     if not query:
         return text
-    # حل مشكلة عدم وضوح الألوان في الوضع الليلي
     text = re.sub(r'\[color=#([0-9A-Fa-f]{6})\]', r'[color=\1]', str(text))
-    
     parts = re.split(r'(\[[^\]]+\])', text)
     highlighted_parts = []
     red_hex = RED.replace("#", "")
-    
     for part in parts:
         if part.startswith('[') and part.endswith(']'):
             highlighted_parts.append(part)
@@ -480,6 +477,49 @@ class JuniorDoctor(App):
             popup = Popup(title=title, content=content, size_hint=(0.9, 0.45),
                           background_color=get_color_from_hex(SURFACE),
                           title_color=get_color_from_hex(NAVY))
+            btn.bind(on_release=lambda *_: popup.dismiss())
+            popup.open()
+        except Exception as e:
+            print(f"Popup error: {e}")
+
+    # ================= WHAT'S NEW POPUP =================
+    def check_and_show_updates(self):
+        try:
+            updates = data_updater.get_latest_updates(self.user_data_dir)
+            if updates and updates.get("topics"):
+                self.show_whats_new_popup(updates)
+                # مسح الملف بعد العرض
+                file_path = os.path.join(self.user_data_dir, "latest_updates.json")
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+        except Exception as e:
+            print(f"Error checking updates: {e}")
+
+    def show_whats_new_popup(self, updates_data):
+        try:
+            topics = updates_data.get("topics", [])
+            if not topics:
+                return
+
+            content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
+            
+            content.add_widget(make_wrapped_label(f"What's New in Update (v{updates_data.get('version')})", 14, TEAL, bold=True))
+            
+            scroll = ScrollView()
+            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
+            list_layout.bind(minimum_height=list_layout.setter("height"))
+            
+            for t in topics:
+                list_layout.add_widget(make_wrapped_label(t, 13, TEXT))
+                
+            scroll.add_widget(list_layout)
+            content.add_widget(scroll)
+            
+            btn = JDButton("Got it!", bg=BLUE, height=45, radius=12, font_size=14)
+            content.add_widget(btn)
+            
+            popup = Popup(title="Medical Guidelines Updated!", content=content, size_hint=(0.9, 0.6),
+                          background_color=get_color_from_hex(SURFACE), title_color=get_color_from_hex(NAVY))
             btn.bind(on_release=lambda *_: popup.dismiss())
             popup.open()
         except Exception as e:
@@ -875,6 +915,9 @@ class JuniorDoctor(App):
         scroll.add_widget(content)
         main_layout.add_widget(scroll)
         screen.add_widget(main_layout)
+        
+        # عرض النافذة المنبثقة للتحديثات بعد تحميل الشاشة بنصف ثانية
+        Clock.schedule_once(lambda dt: self.check_and_show_updates(), 0.5)
 
     # ================= SEARCH (Global - Titles Only) =================
     def open_search(self, query=""):
@@ -1146,7 +1189,6 @@ class JuniorDoctor(App):
                             padding=[dp(20), dp(10)])
         content.bind(minimum_height=content.setter("height"))
 
-        # إضافة رسالة القسم الفارغ
         if not DATA[specialty][subsystem]:
             card = Card(bg=CARD_BLUE, padding=20)
             card.add_widget(make_wrapped_label("No topics available yet.", 16, NAVY, bold=True))
