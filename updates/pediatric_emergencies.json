@@ -1,0 +1,82 @@
+{
+  "Pediatric Emergencies": {
+    "Respiratory & Airway": {
+      "Acute Asthma Exacerbation": [["01 — DEFINITION", "info", "Page under development."]],
+      "Bronchiolitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Community-Acquired Pneumonia": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Croup (Laryngotracheitis)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Life-Threatening Wheeze and Respiratory Failure": [["01 — DEFINITION", "info", "Page under development."]],
+      "Foreign-Body Aspiration": [["01 — DEFINITION", "info", "Page under development."]],
+      "Epiglottitis and Bacterial Tracheitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Anaphylaxis": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Cardiovascular & Shock": {
+      "Pediatric Sepsis and Septic Shock": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pediatric Cardiac Arrest": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pediatric Shock": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Rheumatic Fever and Rheumatic Carditis": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Neurological Emergencies": {
+      "Febrile Seizure": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pediatric Status Epilepticus": [["01 — DEFINITION", "info", "Page under development."]],
+      "Meningitis and Encephalitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pediatric Head Injury": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Gastrointestinal & Surgical": {
+      "Acute Gastroenteritis and Dehydration": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Appendicitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Intussusception": [["01 — DEFINITION", "info", "Page under development."]],
+      "Foreign-Body and Caustic Ingestion": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Renal & Genitourinary": {
+      "Urinary Tract Infection and Pyelonephritis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Kidney Injury (AKI) in Children": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pediatric Hyperkalemia": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Scrotum and Testicular Torsion": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Endocrine & Metabolic": {
+      "Diabetic Ketoacidosis (DKA)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pediatric Hypoglycemia": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Infectious Diseases & Fever": {
+      "Febrile Infant (0-90 Days)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Acute Otitis Media and Mastoiditis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Snakebite and Scorpion Sting": [["01 — DEFINITION", "info", "Page under development."]],
+      "Kawasaki Disease and MIS-C": [["01 — DEFINITION", "info", "Page under development."]],
+      "Severe Malaria in Children": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Trauma, Toxins & Environmental": {
+      "Acute Poisoning and Drug Overdose": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pediatric Burns and Scalds": [["01 — DEFINITION", "info", "Page under development."]],
+      "Pediatric Trauma and Fractures": [["01 — DEFINITION", "info", "Page under development."]],
+      "Drowning and Submersion Injury": [["01 — DEFINITION", "info", "Page under development."]],
+      "Electrical Injury and Lightning Strike": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Hematology & Oncology": {
+      "Sickle Cell Emergencies": [["01 — DEFINITION", "info", "Page under development."]],
+      "Severe Anemia and Acute Hemolytic Crisis": [["01 — DEFINITION", "info", "Page under development."]]
+    },
+    "Neonatal Emergencies": {
+      "Neonatal Resuscitation at Birth": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Respiratory Distress and Failure": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Shock and Poor Perfusion": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Hypothermia and Temperature Instability": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Bradycardia and Cardiac Arrest": [["01 — DEFINITION", "info", "Page under development."]],
+      "Early-Onset and Late-Onset Neonatal Sepsis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Meningitis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Pneumonia": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Omphalitis and Umbilical Sepsis": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Septic Shock": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Hypoglycemia": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Seizures": [["01 — DEFINITION", "info", "Page under development."]],
+      "Severe Neonatal Hyperbilirubinemia": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Apnea and Respiratory Failure": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Necrotizing Enterocolitis (NEC)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Hypernatremic Dehydration": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Pneumothorax and Tension Pneumothorax": [["01 — DEFINITION", "info", "Page under development."]],
+      "Critical Congenital Heart Disease and Duct-Dependent Shock": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Hypoxic-Ischemic Encephalopathy (HIE)": [["01 — DEFINITION", "info", "Page under development."]],
+      "Neonatal Bilious Vomiting and Intestinal Obstruction": [["01 — DEFINITION", "info", "Page under development."]]
+    }
+  }
+}
