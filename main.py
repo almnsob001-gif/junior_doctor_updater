@@ -499,10 +499,8 @@ class JuniorDoctor(App):
                     latest_topic = topics[0]
                     pages = TOPIC_PAGES.get(("App Announcements", latest_topic), [])
                     if pages:
-                        # استخراج النص
                         message = pages[0][2] if len(pages[0]) == 3 else pages[0][1]
                         
-                        # التحقق مما إذا كان الإعلان قد تم عرضه مسبقاً
                         ann_file = self.get_announcement_file()
                         last_shown = ""
                         if os.path.exists(ann_file):
@@ -561,6 +559,11 @@ class JuniorDoctor(App):
             
             for t in topics:
                 clean_t = t.replace("✨", "").replace("🔄", "").strip()
+                
+                # استبعاد الإعلانات من قائمة المواضيع الطبية
+                if "Current Notice" in clean_t or "App Announcement" in clean_t:
+                    continue
+
                 if "NEW:" in clean_t:
                     new_topics.append(clean_t.replace("NEW:", "").strip())
                 elif "UPDATED:" in clean_t:
@@ -572,19 +575,21 @@ class JuniorDoctor(App):
             content.add_widget(make_wrapped_label(f"What's New in Update (v{updates_data.get('version')})", 16, TEAL, bold=True))
             
             scroll = ScrollView()
-            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(6))
+            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
             list_layout.bind(minimum_height=list_layout.setter("height"))
             
+            # قسم المواضيع الجديدة
             if new_topics:
-                list_layout.add_widget(make_wrapped_label("New Topics Added:", 14, TEAL, bold=True))
+                list_layout.add_widget(make_wrapped_label("New topics", 15, TEAL, bold=True))
                 for t in new_topics:
-                    list_layout.add_widget(make_wrapped_label(f"- {t}", 13, TEXT))
-                list_layout.add_widget(BoxLayout(size_hint_y=None, height=dp(12)))
+                    list_layout.add_widget(make_wrapped_label(t, 13, TEXT))
+                list_layout.add_widget(BoxLayout(size_hint_y=None, height=dp(15)))
                 
+            # قسم المواضيع المحدثة
             if updated_topics:
-                list_layout.add_widget(make_wrapped_label("Existing Topics Updated:", 14, BLUE, bold=True))
+                list_layout.add_widget(make_wrapped_label("Updated topics", 15, BLUE, bold=True))
                 for t in updated_topics:
-                    list_layout.add_widget(make_wrapped_label(f"- {t}", 13, TEXT))
+                    list_layout.add_widget(make_wrapped_label(t, 13, TEXT))
                 
             scroll.add_widget(list_layout)
             content.add_widget(scroll)
