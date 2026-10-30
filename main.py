@@ -38,6 +38,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.switch import Switch
 from kivy.uix.popup import Popup
 from kivy.uix.dropdown import DropDown
+from kivy.uix.image import AsyncImage  # <--- إضافة مكتبة الصور
 from kivy.graphics import Color, RoundedRectangle, Ellipse
 from kivy.core.text import LabelBase
 from kivy.core.clipboard import Clipboard
@@ -499,37 +500,53 @@ class JuniorDoctor(App):
                     latest_topic = topics[0]
                     pages = TOPIC_PAGES.get(("App Announcements", latest_topic), [])
                     if pages:
-                        message = pages[0][2] if len(pages[0]) == 3 else pages[0][1]
+                        message = ""
+                        image_url = ""
+                        for page in pages:
+                            if len(page) >= 2 and page[1] == "image":
+                                image_url = page[2]
+                            else:
+                                msg_part = page[2] if len(page) == 3 else page[1]
+                                message += msg_part + "\n\n"
                         
+                        message = message.strip()
                         ann_file = self.get_announcement_file()
                         last_shown = ""
                         if os.path.exists(ann_file):
                             with open(ann_file, 'r', encoding='utf-8') as f:
                                 last_shown = f.read().strip()
                                 
-                        if force or last_shown != message:
-                            self.show_announcement_popup("App Announcement", message)
+                        current_hash = message + image_url
+                        if force or last_shown != current_hash:
+                            self.show_announcement_popup("App Announcement", message, image_url)
                             with open(ann_file, 'w', encoding='utf-8') as f:
-                                f.write(message)
+                                f.write(current_hash)
         except Exception as e:
             print(f"Announcement error: {e}")
 
-    def show_announcement_popup(self, title, message):
+    def show_announcement_popup(self, title, message, image_url=""):
         try:
             content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
             content.add_widget(make_wrapped_label(title, 16, TEAL, bold=True))
             
             scroll = ScrollView()
-            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
+            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10))
             list_layout.bind(minimum_height=list_layout.setter("height"))
-            list_layout.add_widget(make_wrapped_label(message, 14, TEXT))
+            
+            if image_url:
+                img = AsyncImage(source=image_url, size_hint_y=None, height=dp(200))
+                list_layout.add_widget(img)
+                
+            if message:
+                list_layout.add_widget(make_wrapped_label(message, 14, TEXT))
+                
             scroll.add_widget(list_layout)
             content.add_widget(scroll)
             
             btn = JDButton("Got it!", bg=BLUE, height=45, radius=12, font_size=14)
             content.add_widget(btn)
             
-            popup = Popup(title="Notice", content=content, size_hint=(0.9, 0.6),
+            popup = Popup(title="Notice", content=content, size_hint=(0.9, 0.7),
                           background_color=get_color_from_hex(SURFACE), title_color=get_color_from_hex(NAVY))
             btn.bind(on_release=lambda *_: popup.dismiss())
             popup.open()
@@ -560,7 +577,6 @@ class JuniorDoctor(App):
             for t in topics:
                 clean_t = t.replace("✨", "").replace("🔄", "").strip()
                 
-                # استبعاد الإعلانات من قائمة المواضيع الطبية
                 if "Current Notice" in clean_t or "App Announcement" in clean_t:
                     continue
 
@@ -578,14 +594,12 @@ class JuniorDoctor(App):
             list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
             list_layout.bind(minimum_height=list_layout.setter("height"))
             
-            # قسم المواضيع الجديدة
             if new_topics:
                 list_layout.add_widget(make_wrapped_label("New topics", 15, TEAL, bold=True))
                 for t in new_topics:
                     list_layout.add_widget(make_wrapped_label(t, 13, TEXT))
                 list_layout.add_widget(BoxLayout(size_hint_y=None, height=dp(15)))
                 
-            # قسم المواضيع المحدثة
             if updated_topics:
                 list_layout.add_widget(make_wrapped_label("Updated topics", 15, BLUE, bold=True))
                 for t in updated_topics:
@@ -626,7 +640,6 @@ class JuniorDoctor(App):
         theme_card.add_widget(make_wrapped_label("Switch between light and dark themes.", 12, MUTED))
         content.add_widget(theme_card)
 
-        # زر عرض الإعلان
         ann_card = Card(bg=CARD_PURPLE, padding=15)
         ann_card.add_widget(make_wrapped_label("Latest Announcement", 14, NAVY, bold=True))
         ann_card.add_widget(make_wrapped_label("View the latest medical tip or app announcement.", 12, TEXT))
