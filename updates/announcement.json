@@ -2,9 +2,8 @@
   "App Announcements": {
     "General": {
       "Current Notice": [
-        ["📢 IMPORTANT ANNOUNCEMENT", "info", "Welcome Doctors! Please read the following important update."],
         ["Image", "image", "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/1793319105745.jpg"],
-        ["Additional Info", "info", "This is an example medical tip or announcement. You can change this text anytime from GitHub."]
+        ["Welcome Message", "info", "We are delighted to have you with us!\n\nJunior Doctor is designed to be your trusted medical companion during your clinical shifts, providing you with a practical and well-organized reference to help you access medical information, treatment protocols, and clinical calculators quickly and easily.\n\nLearn. Practice. Improve. Save Lives.\n\nWe wish you a successful and rewarding journey filled with continuous learning, professional growth, and excellence.\n\nGOOD LUCK, DOCTOR!"]
       ]
     }
   }
