@@ -237,16 +237,17 @@ def make_wrapped_label(text, size=14, color=TEXT, bold=False, halign="left"):
         font_name = "ArabicFont"
         halign = "right"
         if HAS_ARABIC_SUPPORT:
-            # 1. تشكيل وعكس النص بالكامل
-            reshaped_text = arabic_reshaper.reshape(text)
-            bidi_text = get_display(reshaped_text)
-            
-            # 2. تقسيم النص إلى أسطر وعكس ترتيبها (لأن get_display عكست الترتيب)
-            lines = bidi_text.split('\n')
-            lines.reverse()
-            
-            # 3. إعادة دمج النص
-            text = '\n'.join(lines)
+            # الحل النهائي: معالجة كل سطر على حدة للحفاظ على ترتيب الأسطر
+            lines = text.split('\n')
+            processed_lines = []
+            for line in lines:
+                if line.strip():
+                    reshaped_line = arabic_reshaper.reshape(line)
+                    bidi_line = get_display(reshaped_line)
+                    processed_lines.append(bidi_line)
+                else:
+                    processed_lines.append("")
+            text = '\n'.join(processed_lines)
 
     lab = Label(text=text, font_size=sp(size), color=get_color_from_hex(color), bold=bold, halign=halign, valign="top", size_hint_y=None, font_name=font_name)
     lab.bind(width=lambda i, w: setattr(i, 'text_size', (w, None)))
