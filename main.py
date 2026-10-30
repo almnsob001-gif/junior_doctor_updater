@@ -229,7 +229,6 @@ def make_wrapped_label(text, size=14, color=TEXT, bold=False, halign="left"):
     if not isinstance(text, str):
         text = str(text)
         
-    # فحص إذا كان النص يحتوي على حروف عربية
     is_arabic = bool(re.search(r'[\u0600-\u06FF]', text))
     
     font_name = "Roboto"
@@ -237,7 +236,6 @@ def make_wrapped_label(text, size=14, color=TEXT, bold=False, halign="left"):
         font_name = "ArabicFont"
         halign = "right"
         if HAS_ARABIC_SUPPORT:
-            # الحل النهائي: معالجة كل سطر على حدة للحفاظ على ترتيب الأسطر
             lines = text.split('\n')
             processed_lines = []
             for line in lines:
@@ -297,36 +295,54 @@ class JDButton(Button):
         self.bind(size=lambda i, v: setattr(i, 'text_size', (v[0] - dp(20), None)))
 
 class ModernHeader(BoxLayout):
-    def __init__(self, title, subtitle="", bg_color=HEADER_NAVY, title_color=WHITE, subtitle_color="#94A3B8", menu_callback=None, **kwargs):
-        super().__init__(orientation="horizontal", size_hint_y=None, height=dp(90), spacing=dp(10), padding=[dp(20), dp(15), dp(15), dp(15)], **kwargs)
-        
+    def __init__(self, title, subtitle="", bg_color=HEADER_NAVY, title_color=WHITE,
+                 subtitle_color="#94A3B8", menu_callback=None,
+                 heart_callback=None, is_fav=False, **kwargs):
+        super().__init__(orientation="horizontal", size_hint_y=None, height=dp(90),
+                         spacing=dp(6), padding=[dp(20), dp(15), dp(15), dp(15)], **kwargs)
+
         with self.canvas.before:
             Color(*get_color_from_hex(bg_color))
             self._bg = RoundedRectangle(pos=self.pos, size=self.size, radius=[0, 0, dp(30), dp(30)])
-        self.bind(pos=lambda i, v: setattr(self._bg, 'pos', v), size=lambda i, v: setattr(self._bg, 'size', v))
-            
+        self.bind(pos=lambda i, v: setattr(self._bg, 'pos', v),
+                  size=lambda i, v: setattr(self._bg, 'size', v))
+
         title_box = BoxLayout(orientation="vertical", spacing=dp(4), size_hint_y=None)
         title_box.bind(minimum_height=title_box.setter("height"))
-        
         title_box.add_widget(make_wrapped_label(title, 20, title_color, bold=True))
-        
         if subtitle:
             title_box.add_widget(make_wrapped_label(subtitle, 12, subtitle_color, bold=True))
-            
+
         title_layout = BoxLayout(size_hint_y=None)
         title_layout.bind(minimum_height=title_layout.setter("height"))
         title_layout.add_widget(title_box)
         self.add_widget(title_layout)
-        
+
+        # ★ زر القلب ★
+        if heart_callback is not None:
+            heart_btn = Button(
+                text="\u2665" if is_fav else "\u2661",
+                font_size=sp(26),
+                size_hint=(None, 1),
+                width=dp(45),
+                background_normal="",
+                background_down="",
+                background_color=(0, 0, 0, 0),
+                color=get_color_from_hex(RED if is_fav else WHITE),
+                bold=True,
+            )
+            heart_btn.bind(on_release=lambda *_: heart_callback(heart_btn))
+            self.add_widget(heart_btn)
+
         if menu_callback:
             menu_btn = Button(
-                text="⋮", font_size=sp(24), size_hint=(None, 1), width=dp(40), 
-                background_normal="", background_down="", 
-                background_color=(0,0,0,0), color=get_color_from_hex(WHITE), bold=True
+                text="\u22EE", font_size=sp(24), size_hint=(None, 1), width=dp(40),
+                background_normal="", background_down="",
+                background_color=(0, 0, 0, 0), color=get_color_from_hex(WHITE), bold=True
             )
             menu_btn.bind(on_release=lambda *_: menu_callback(menu_btn))
             self.add_widget(menu_btn)
-        
+
         def update_header_height(*_):
             self.height = max(dp(90), title_box.height + dp(30))
         title_box.bind(height=update_header_height)
@@ -768,7 +784,7 @@ class JuniorDoctor(App):
         if not favs:
             card = Card(bg=CARD_BLUE, padding=20)
             card.add_widget(make_wrapped_label("No favorites yet.", 16, NAVY, bold=True))
-            card.add_widget(make_wrapped_label("Use the 3-dots menu on any topic to add it here.", 13, MUTED))
+            card.add_widget(make_wrapped_label("Tap the heart icon on any topic to add it here.", 13, MUTED))
             content.add_widget(card)
         else:
             for spec, topic in favs:
@@ -1031,7 +1047,6 @@ class JuniorDoctor(App):
                                  size_hint_y=None, height=dp(30), halign="left"))
 
         for specialty, subsystems in DATA.items():
-            # تجاهل قسم الإعلانات لكي لا يظهر في الصفحة الرئيسية
             if specialty == "App Announcements":
                 continue
 
@@ -1131,7 +1146,19 @@ class JuniorDoctor(App):
         screen.clear_widgets()
         main_layout = BoxLayout(orientation="vertical", padding=dp(0), spacing=dp(0))
         self.current_back_action = lambda: self.open_detail(specialty, topic)
-        main_layout.add_widget(ModernHeader("Search in Topic", topic.upper()[:30], bg_color=HEADER_NAVY))
+
+        def on_heart_ts(btn):
+            self.toggle_favorite(specialty, topic)
+            fav = self.is_favorite(specialty, topic)
+            btn.text = "\u2665" if fav else "\u2661"
+            btn.color = get_color_from_hex(RED if fav else WHITE)
+
+        main_layout.add_widget(ModernHeader(
+            "Search in Topic", topic.upper()[:30],
+            bg_color=HEADER_NAVY,
+            heart_callback=on_heart_ts,
+            is_fav=self.is_favorite(specialty, topic)
+        ))
 
         top_area = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10), padding=[dp(20), dp(10), dp(20), dp(10)])
         top_area.bind(minimum_height=top_area.setter("height"))
@@ -1374,9 +1401,6 @@ class JuniorDoctor(App):
         self.current_back_action = lambda: self.open_category(specialty, subsystem_found)
 
         def show_menu(btn):
-            is_fav = self.is_favorite(specialty, topic)
-            fav_text = "Remove from Favorites" if is_fav else "Add to Favorites"
-            
             dropdown = DropDown()
             dropdown.width = dp(200)
             dropdown.auto_width = False
@@ -1388,18 +1412,22 @@ class JuniorDoctor(App):
             btn1.bind(size=lambda ins, val: setattr(ins, 'text_size', (val[0]-dp(20), val[1])))
             btn1.bind(on_release=lambda *_: (dropdown.dismiss(), self.open_topic_search(specialty, topic)))
             dropdown.add_widget(btn1)
-            
-            btn2 = Button(text=fav_text, size_hint_y=None, height=dp(45),
-                          background_normal="", background_color=get_color_from_hex(SURFACE),
-                          color=get_color_from_hex(TEXT), font_size=sp(14), bold=True,
-                          halign="left", padding=[dp(15), 0])
-            btn2.bind(size=lambda ins, val: setattr(ins, 'text_size', (val[0]-dp(20), val[1])))
-            btn2.bind(on_release=lambda *_: (dropdown.dismiss(), self.toggle_favorite_ui(specialty, topic)))
-            dropdown.add_widget(btn2)
 
             dropdown.open(btn)
 
-        main_layout.add_widget(ModernHeader(topic, specialty.upper(), bg_color=HEADER_NAVY, menu_callback=show_menu))
+        def on_heart(btn):
+            self.toggle_favorite(specialty, topic)
+            fav = self.is_favorite(specialty, topic)
+            btn.text = "\u2665" if fav else "\u2661"
+            btn.color = get_color_from_hex(RED if fav else WHITE)
+
+        main_layout.add_widget(ModernHeader(
+            topic, specialty.upper(),
+            bg_color=HEADER_NAVY,
+            menu_callback=show_menu,
+            heart_callback=on_heart,
+            is_fav=self.is_favorite(specialty, topic)
+        ))
 
         scroll = ScrollView(do_scroll_x=False)
         content = BoxLayout(orientation="vertical", spacing=dp(15), size_hint_y=None,
@@ -1422,7 +1450,6 @@ class JuniorDoctor(App):
             body = item[2] if len(item) == 3 else item[1]
             h_upper = heading.upper()
 
-            # دعم عرض الصور داخل الحالات
             if scheme == "image":
                 img = AsyncImage(source=body, size_hint_y=None, height=dp(250))
                 content.add_widget(img)
