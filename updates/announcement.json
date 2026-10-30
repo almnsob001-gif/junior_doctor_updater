@@ -2,7 +2,9 @@
   "App Announcements": {
     "General": {
       "Current Notice": [
-        ["📢 IMPORTANT ANNOUNCEMENT", "info", "Welcome Doctors! Please note that the new guidelines for Acute Asthma have been updated. Always verify drug doses before prescribing."]
+        ["📢 IMPORTANT ANNOUNCEMENT", "info", "Welcome Doctors! Please read the following important update."],
+        ["Image", "image", "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/1793319105745.jpg"],
+        ["Additional Info", "info", "This is an example medical tip or announcement. You can change this text anytime from GitHub."]
       ]
     }
   }
