@@ -1,7 +1,7 @@
 {
   "Clinical Cases & MCQs": {
     "General": {
-      "Case 1: Acute Aortic Dissection": [
+      "Case 1: 45-Year-Old Male with Chest Pain": [
         ["CLINICAL SCENARIO", "info", "[b]A 58-year-old male[/b] presents to the Emergency Department with sudden-onset, severe chest pain that started 30 minutes ago while he was resting.\nThe patient describes the pain as [b]tearing and ripping[/b], radiating from the anterior chest to the back between the shoulder blades.\n\n[b]Past Medical History:[/b]\n- Long-standing uncontrolled hypertension.\n- Poor adherence to antihypertensive medications.\n- No previous cardiac surgery.\n\n[b]On Examination:[/b]\n- BP: 190/110 mmHg (right arm).\n- BP: 155/90 mmHg (left arm).\n- HR: 112 bpm.\n- RR: 24/min.\n- SpO₂: 96% on room air.\n- Temperature: 36.8°C.\n\n[b]Physical Examination:[/b]\n- Patient appears anxious and diaphoretic.\n- Unequal radial pulses.\n- New early diastolic murmur suggestive of aortic regurgitation.\n- No obvious signs of heart failure.\n\n[b]Investigations:[/b]\n- [b]ECG:[/b] Sinus tachycardia, no ST-segment elevation.\n- [b]Troponin:[/b] Slightly elevated.\n- [b]Chest X-ray:[/b] Widened mediastinum.\n- [b]Bedside echocardiography:[/b] Dilated aortic root with suspected intimal flap."],
         
         ["Image 1", "image", "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/Aortic-dissection-23.png"],
