@@ -2,9 +2,11 @@
   "Clinical Cases & MCQs": {
     "General": {
       "Case 1: 45-Year-Old Male with Chest Pain": [
-        ["CASE PRESENTATION", "info", "A 45-year-old male presents to the ED with sudden onset severe chest pain radiating to the back. BP is 160/90 in the right arm and 120/70 in the left arm. ECG shows no acute ST changes."],
-        ["MCQ 1", "success", "What is the most likely diagnosis?\n\nA) Acute Coronary Syndrome (ACS)\nB) Pulmonary Embolism\nC) Aortic Dissection\nD) Pericarditis\n\n**Answer: C) Aortic Dissection**"],
-        ["CLINICAL PEARL", "warning", "A difference in blood pressure >20 mmHg between arms is a red flag for aortic dissection. Immediate CT angiography is indicated."]
+        ["CASE PRESENTATION", "info", "A 45-year-old male presents to the ED with sudden onset severe chest pain radiating to the back. BP is 160/90 in the right arm and 120/70 in the left arm."],
+        
+        ["MCQ", "warning", "What is the most likely diagnosis?\n\nA) Acute Coronary Syndrome (ACS)\nB) Pulmonary Embolism\nC) Aortic Dissection\nD) Pericarditis"],
+        
+        ["Answer & Explanation", "success", "[b]Correct Answer: C) Aortic Dissection[/b]\n\n[b]Why C is correct:[/b]\nThe patient presents with tearing chest pain radiating to the back, and a significant blood pressure difference between arms.\n\n[b]Why the other options are incorrect:[/b]\n\n[b]A) Acute Coronary Syndrome:[/b] Usually presents with crushing chest pain, but the ECG is normal here.\n\n[b]B) Pulmonary Embolism:[/b] Typically presents with sudden dyspnea and pleuritic chest pain."]
       ]
     }
   }
