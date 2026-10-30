@@ -1031,6 +1031,10 @@ class JuniorDoctor(App):
                                  size_hint_y=None, height=dp(30), halign="left"))
 
         for specialty, subsystems in DATA.items():
+            # تجاهل قسم الإعلانات لكي لا يظهر في الصفحة الرئيسية
+            if specialty == "App Announcements":
+                continue
+
             num_topics = sum(len(topics) for topics in subsystems.values())
             cat_card = BoxLayout(orientation="vertical", size_hint_y=None, height=dp(120),
                                  padding=dp(15), spacing=dp(10))
