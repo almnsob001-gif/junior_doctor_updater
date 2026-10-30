@@ -25,6 +25,16 @@ import data_pediatric_calculators
 import data_extensions
 import data_updater
 
+# --- مكتبات دعم اللغة العربية ---
+try:
+    import arabic_reshaper
+    from bidi.algorithm import get_display
+    HAS_ARABIC_SUPPORT = True
+except ImportError:
+    HAS_ARABIC_SUPPORT = False
+    print("Warning: arabic_reshaper or python-bidi not installed.")
+# --------------------------------
+
 from kivy.app import App
 from kivy.metrics import dp
 from kivy.core.window import Window
@@ -48,6 +58,12 @@ try:
     LabelBase.register(name="Roboto", fn_regular="DejaVuSans.ttf")
 except:
     pass
+
+# تسجيل الخط العربي
+try:
+    LabelBase.register(name="ArabicFont", fn_regular="arabic.ttf")
+except:
+    print("Warning: arabic.ttf not found. Arabic text might not display correctly.")
 
 # ================= دمج البيانات =================
 DATA = {}
@@ -198,10 +214,8 @@ def draw_card_bg(widget, bg_color, radius=24, shadow=True, is_bar=False):
 def make_markup_label(text, size=13, color=TEXT):
     if not isinstance(text, str):
         text = str(text)
-    
     blue_hex = BLUE.replace("#", "")
     red_hex = RED.replace("#", "")
-    
     text = text.replace("[color=0000FF]", f"[color={blue_hex}]")
     text = text.replace("[color=FF0000]", f"[color={red_hex}]")
     text = text.replace("[color=#2563EB]", f"[color={blue_hex}]")
@@ -212,10 +226,23 @@ def make_markup_label(text, size=13, color=TEXT):
     lab.bind(texture_size=lambda i, s: setattr(lab, 'height', s[1] + dp(10)))
     return lab
 
-def make_wrapped_label(text, size=14, color=TEXT, bold=False):
+def make_wrapped_label(text, size=14, color=TEXT, bold=False, halign="left"):
     if not isinstance(text, str):
         text = str(text)
-    lab = Label(text=text, font_size=sp(size), color=get_color_from_hex(color), bold=bold, halign="left", valign="top", size_hint_y=None)
+        
+    # فحص إذا كان النص يحتوي على حروف عربية
+    is_arabic = bool(re.search(r'[\u0600-\u06FF]', text))
+    
+    font_name = "Roboto"
+    if is_arabic:
+        font_name = "ArabicFont"
+        halign = "right"
+        if HAS_ARABIC_SUPPORT:
+            # إعادة تشكيل الحروف العربية وعكس اتجاه النص
+            reshaped_text = arabic_reshaper.reshape(text)
+            text = get_display(reshaped_text)
+
+    lab = Label(text=text, font_size=sp(size), color=get_color_from_hex(color), bold=bold, halign=halign, valign="top", size_hint_y=None, font_name=font_name)
     lab.bind(width=lambda i, w: setattr(lab, 'text_size', (w, None)))
     lab.bind(texture_size=lambda i, s: setattr(lab, 'height', s[1] + dp(6)))
     return lab
@@ -528,7 +555,6 @@ class JuniorDoctor(App):
         try:
             content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
             
-            # عنوان أخضر فاتح
             content.add_widget(make_wrapped_label(title, 16, "#2DD4BF", bold=True))
             
             scroll = ScrollView()
@@ -540,7 +566,6 @@ class JuniorDoctor(App):
                 list_layout.add_widget(img)
                 
             if message:
-                # نص أبيض ساطع
                 list_layout.add_widget(make_wrapped_label(message, 14, "#FFFFFF"))
                 
             scroll.add_widget(list_layout)
@@ -549,7 +574,6 @@ class JuniorDoctor(App):
             btn = JDButton("Got it!", bg=BLUE, height=45, radius=12, font_size=14)
             content.add_widget(btn)
             
-            # خلفية النافذة سوداء داكنة
             popup = Popup(title="Notice", content=content, size_hint=(0.9, 0.7),
                           background_color=get_color_from_hex("#0F172A"), title_color=get_color_from_hex("#FFFFFF"))
             btn.bind(on_release=lambda *_: popup.dismiss())
@@ -596,14 +620,12 @@ class JuniorDoctor(App):
 
             content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
             
-            # العنوان المطلوب
             content.add_widget(make_wrapped_label("New & updated topics", 18, "#2DD4BF", bold=True))
             
             scroll = ScrollView()
             list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
             list_layout.bind(minimum_height=list_layout.setter("height"))
             
-            # عرض المواضيع الجديدة والمحدثة بلون أبيض
             for t in new_topics:
                 list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
             for t in updated_topics:
@@ -615,7 +637,6 @@ class JuniorDoctor(App):
             btn = JDButton("Got it!", bg=BLUE, height=45, radius=12, font_size=14)
             content.add_widget(btn)
             
-            # خلفية النافذة سوداء داكنة
             popup = Popup(title="Update Alert", content=content, size_hint=(0.9, 0.6),
                           background_color=get_color_from_hex("#0F172A"), title_color=get_color_from_hex("#FFFFFF"))
             btn.bind(on_release=lambda *_: popup.dismiss())
