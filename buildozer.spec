@@ -3,11 +3,13 @@ title = Junior Doctor
 package.name = juniordoctor_v85
 package.domain = org.juniordoctor
 source.dir = .
+# تأكدنا من وجود ttf هنا لرفع ملف الخط العربي
 source.include_exts = py,png,jpg,jpeg,kv,atlas,ttf,json,txt
 icon.filename = %(source.dir)s/icon.png
 version = 8.5
 
-requirements = python3==3.10.12,hostpython3==3.10.12,kivy==2.3.0,cython==0.29.34
+# تمت إضافة مكتبات اللغة العربية هنا
+requirements = python3==3.10.12,hostpython3==3.10.12,kivy==2.3.0,cython==0.29.34,arabic-reshaper,python-bidi
 
 android.permissions = INTERNET,WAKE_LOCK
 android.accept_sdk_license = True
