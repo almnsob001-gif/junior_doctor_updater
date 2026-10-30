@@ -250,8 +250,8 @@ def make_wrapped_label(text, size=14, color=TEXT, bold=False, halign="left"):
             text = '\n'.join(processed_lines)
 
     lab = Label(text=text, font_size=sp(size), color=get_color_from_hex(color), bold=bold, halign=halign, valign="top", size_hint_y=None, font_name=font_name)
-    lab.bind(width=lambda i, w: setattr(i, 'text_size', (w, None)))
-    lab.bind(texture_size=lambda i, s: setattr(i, 'height', s[1] + dp(6)))
+    lab.bind(width=lambda i, w: setattr(lab, 'text_size', (w, None)))
+    lab.bind(texture_size=lambda i, s: setattr(lab, 'height', s[1] + dp(6)))
     return lab
 
 def highlight_text(text, query):
@@ -1417,6 +1417,12 @@ class JuniorDoctor(App):
             scheme = item[1]
             body = item[2] if len(item) == 3 else item[1]
             h_upper = heading.upper()
+
+            # دعم عرض الصور داخل الحالات
+            if scheme == "image":
+                img = AsyncImage(source=body, size_hint_y=None, height=dp(250))
+                content.add_widget(img)
+                continue
 
             if scheme == "danger" or any(w in h_upper for w in ("WARNING", "DON'T MISS", "CONTRAINDICATION")):
                 bg, bar_color, title_color = DANGER_BG, DANGER_BAR, RED
