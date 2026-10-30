@@ -117,7 +117,7 @@ for specialty, subsystems in DATA.items():
         for topic in topics:
             if (specialty, topic) not in TOPIC_PAGES and specialty not in ("Clinical Calculators", "Pediatric Calculators"):
                 TOPIC_PAGES[(specialty, topic)] = [
-                    ("PAGE UNDER DEVELOPMENT", "warning", f"Detailed clinical content for **{topic}** is currently being compiled."),
+                    ("PAGE UNDER DEVELOPMENT", "warning", f"Detailed clinical content for [b]{topic}[/b] is currently being compiled."),
                     ("SAFETY NOTE", "danger", "Verify doses and protocols against local guidelines.")
                 ]
 
@@ -573,7 +573,7 @@ class JuniorDoctor(App):
                 list_layout.add_widget(img)
                 
             if message:
-                list_layout.add_widget(make_wrapped_label(message, 14, "#FFFFFF"))
+                list_layout.add_widget(make_markup_label(message, 14, "#FFFFFF"))
                 
             scroll.add_widget(list_layout)
             content.add_widget(scroll)
