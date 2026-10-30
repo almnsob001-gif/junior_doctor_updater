@@ -2,11 +2,15 @@
   "Clinical Cases & MCQs": {
     "General": {
       "Case 1: 45-Year-Old Male with Chest Pain": [
-        ["CASE PRESENTATION", "info", "A 45-year-old male presents to the ED with sudden onset severe chest pain radiating to the back. BP is 160/90 in the right arm and 120/70 in the left arm."],
+        ["CASE PRESENTATION", "info", "A 45-year-old male presents to the ED with sudden onset severe chest pain radiating to the back. BP is 160/90 in the right arm and 120/70 in the left arm. ECG shows no acute ST changes."],
+        
+        ["Clinical Image (ECG/CXR)", "image", "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main/updates/Aortic-dissection-23.png"],
         
         ["MCQ", "warning", "What is the most likely diagnosis?\n\nA) Acute Coronary Syndrome (ACS)\nB) Pulmonary Embolism\nC) Aortic Dissection\nD) Pericarditis"],
         
-        ["Answer & Explanation", "success", "[b]Correct Answer: C) Aortic Dissection[/b]\n\n[b]Why C is correct:[/b]\nThe patient presents with tearing chest pain radiating to the back, and a significant blood pressure difference between arms.\n\n[b]Why the other options are incorrect:[/b]\n\n[b]A) Acute Coronary Syndrome:[/b] Usually presents with crushing chest pain, but the ECG is normal here.\n\n[b]B) Pulmonary Embolism:[/b] Typically presents with sudden dyspnea and pleuritic chest pain."]
+        ["Answer & Explanation", "success", "[b]Correct Answer: C) Aortic Dissection[/b]\n\n[b]Why C is correct:[/b]\nThe patient presents with sudden onset, severe tearing chest pain radiating to the back. The classic red flag here is the significant blood pressure difference between the right arm (160/90) and the left arm (120/70). A difference >20 mmHg is highly suggestive of aortic dissection.\n\n[b]Why A (Acute Coronary Syndrome) is incorrect:[/b]\nWhile ACS is a common cause of chest pain, it typically presents with a crushing, pressure-like pain. A massive BP difference between arms is not a feature of ACS. Furthermore, the ECG shows no acute ST changes, making ACS less likely at this moment.\n\n[b]Why B (Pulmonary Embolism) is incorrect:[/b]\nPulmonary embolism usually presents with sudden dyspnea (shortness of breath), pleuritic chest pain, and tachycardia. It does not typically cause a significant blood pressure differential between the arms.\n\n[b]Why D (Pericarditis) is incorrect:[/b]\nPericarditis pain is typically sharp, pleuritic (worsens with deep breaths), and classically improves when the patient leans forward. It does not cause a blood pressure difference between the arms."],
+        
+        ["CLINICAL PEARL", "danger", "[b]Immediate Action:[/b] In suspected aortic dissection, obtain urgent CT angiography. Start IV beta-blockers to control heart rate and blood pressure before giving vasodilators to reduce aortic shear stress."]
       ]
     }
   }
