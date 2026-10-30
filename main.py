@@ -38,7 +38,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.switch import Switch
 from kivy.uix.popup import Popup
 from kivy.uix.dropdown import DropDown
-from kivy.uix.image import AsyncImage  # <--- إضافة مكتبة الصور
+from kivy.uix.image import AsyncImage
 from kivy.graphics import Color, RoundedRectangle, Ellipse
 from kivy.core.text import LabelBase
 from kivy.core.clipboard import Clipboard
@@ -527,7 +527,9 @@ class JuniorDoctor(App):
     def show_announcement_popup(self, title, message, image_url=""):
         try:
             content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
-            content.add_widget(make_wrapped_label(title, 16, TEAL, bold=True))
+            
+            # عنوان أخضر فاتح
+            content.add_widget(make_wrapped_label(title, 16, "#2DD4BF", bold=True))
             
             scroll = ScrollView()
             list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10))
@@ -538,7 +540,8 @@ class JuniorDoctor(App):
                 list_layout.add_widget(img)
                 
             if message:
-                list_layout.add_widget(make_wrapped_label(message, 14, TEXT))
+                # نص أبيض ساطع
+                list_layout.add_widget(make_wrapped_label(message, 14, "#FFFFFF"))
                 
             scroll.add_widget(list_layout)
             content.add_widget(scroll)
@@ -546,8 +549,9 @@ class JuniorDoctor(App):
             btn = JDButton("Got it!", bg=BLUE, height=45, radius=12, font_size=14)
             content.add_widget(btn)
             
+            # خلفية النافذة سوداء داكنة
             popup = Popup(title="Notice", content=content, size_hint=(0.9, 0.7),
-                          background_color=get_color_from_hex(SURFACE), title_color=get_color_from_hex(NAVY))
+                          background_color=get_color_from_hex("#0F172A"), title_color=get_color_from_hex("#FFFFFF"))
             btn.bind(on_release=lambda *_: popup.dismiss())
             popup.open()
         except Exception as e:
@@ -587,23 +591,23 @@ class JuniorDoctor(App):
                 else:
                     new_topics.append(clean_t)
 
+            if not new_topics and not updated_topics:
+                return
+
             content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
-            content.add_widget(make_wrapped_label(f"What's New in Update (v{updates_data.get('version')})", 16, TEAL, bold=True))
+            
+            # العنوان المطلوب
+            content.add_widget(make_wrapped_label("New & updated topics", 18, "#2DD4BF", bold=True))
             
             scroll = ScrollView()
             list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
             list_layout.bind(minimum_height=list_layout.setter("height"))
             
-            if new_topics:
-                list_layout.add_widget(make_wrapped_label("New topics", 15, TEAL, bold=True))
-                for t in new_topics:
-                    list_layout.add_widget(make_wrapped_label(t, 13, TEXT))
-                list_layout.add_widget(BoxLayout(size_hint_y=None, height=dp(15)))
-                
-            if updated_topics:
-                list_layout.add_widget(make_wrapped_label("Updated topics", 15, BLUE, bold=True))
-                for t in updated_topics:
-                    list_layout.add_widget(make_wrapped_label(t, 13, TEXT))
+            # عرض المواضيع الجديدة والمحدثة بلون أبيض
+            for t in new_topics:
+                list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
+            for t in updated_topics:
+                list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
                 
             scroll.add_widget(list_layout)
             content.add_widget(scroll)
@@ -611,8 +615,9 @@ class JuniorDoctor(App):
             btn = JDButton("Got it!", bg=BLUE, height=45, radius=12, font_size=14)
             content.add_widget(btn)
             
-            popup = Popup(title="Medical Guidelines Updated!", content=content, size_hint=(0.9, 0.6),
-                          background_color=get_color_from_hex(SURFACE), title_color=get_color_from_hex(NAVY))
+            # خلفية النافذة سوداء داكنة
+            popup = Popup(title="Update Alert", content=content, size_hint=(0.9, 0.6),
+                          background_color=get_color_from_hex("#0F172A"), title_color=get_color_from_hex("#FFFFFF"))
             btn.bind(on_release=lambda *_: popup.dismiss())
             popup.open()
         except Exception as e:
