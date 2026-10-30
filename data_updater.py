@@ -1,12 +1,13 @@
 # ============================================================
-# data_updater.py — النسخة النهائية الجاهزة للنشر
+# data_updater.py — نسخة نهائية مع إصلاح SSL على أندرويد
 # ------------------------------------------------------------
-# الإصلاحات المطبَّقة:
-#   1. تفعيل التحقق من شهادة SSL (حذف CERT_NONE)
-#   2. الاستبدال الكامل بدل الدمج (الحذف من GitHub ينتقل للهاتف)
-#   3. إلغاء fallback expanduser("~") الذي يفشل على أندرويد
-#   4. تسجيل الحذف في سجل التحديثات (🗑️ REMOVED)
-#   5. رفض التحديث كلياً إذا فشل أي ملف (حماية من بيانات جزئية)
+# الإصلاحات:
+#   1. استخدام certifi لشهادات CA (أندرويد لا يملك مخزن شهادات)
+#   2. التحقق الكامل من شهادة SSL (بدون CERT_NONE)
+#   3. الاستبدال الكامل بدل الدمج (الحذف من GitHub ينتقل للهاتف)
+#   4. إلغاء fallback expanduser("~")
+#   5. تسجيل الحذف في سجل التحديثات (🗑️ REMOVED)
+#   6. رفض التحديث كلياً إذا فشل أي ملف
 # ============================================================
 import os
 import json
@@ -15,13 +16,21 @@ import urllib.request
 import threading
 import concurrent.futures
 
+# ★ إصلاح SSL على أندرويد: توجيه Python لاستخدام شهادات certifi ★
+try:
+    import certifi
+    os.environ['SSL_CERT_FILE'] = certifi.where()
+    _CA_FILE = certifi.where()
+except Exception:
+    _CA_FILE = None
+
 REPO_RAW = "https://raw.githubusercontent.com/almnsob001-gif/junior_doctor_updater/main"
 VERSION_URL = f"{REPO_RAW}/updates/version.json"
 
-_ERROR_FILE       = "update_error.txt"
-_DATA_FILE        = "downloaded_data.json"
+_ERROR_FILE        = "update_error.txt"
+_DATA_FILE         = "downloaded_data.json"
 _LAST_VERSION_FILE = "last_version.txt"
-_UPDATES_LOG_FILE = "latest_updates.json"
+_UPDATES_LOG_FILE  = "latest_updates.json"
 
 
 # ------------------------------------------------------------
@@ -38,11 +47,15 @@ def _safe_path(user_data_dir, name):
 
 
 # ------------------------------------------------------------
-# الشبكة — SSL سليم
+# الشبكة — SSL مع certifi
 # ------------------------------------------------------------
 def _fetch(url, timeout=15):
-    """HTTPS مع التحقق الكامل من الشهادة (بدون CERT_NONE)."""
-    ctx = ssl.create_default_context()
+    """HTTPS مع التحقق الكامل من الشهادة عبر certifi."""
+    if _CA_FILE:
+        ctx = ssl.create_default_context(cafile=_CA_FILE)
+    else:
+        ctx = ssl.create_default_context()
+
     req = urllib.request.Request(url, headers={"User-Agent": "JuniorDoctor/1.0"})
     with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:
         return resp.read().decode("utf-8")
@@ -61,9 +74,9 @@ def _download_single_file(url):
 # ------------------------------------------------------------
 def _background_update_worker(user_data_dir, current_version):
     try:
-        err_path        = _safe_path(user_data_dir, _ERROR_FILE)
-        last_ver_path   = _safe_path(user_data_dir, _LAST_VERSION_FILE)
-        data_path       = _safe_path(user_data_dir, _DATA_FILE)
+        err_path         = _safe_path(user_data_dir, _ERROR_FILE)
+        last_ver_path    = _safe_path(user_data_dir, _LAST_VERSION_FILE)
+        data_path        = _safe_path(user_data_dir, _DATA_FILE)
         updates_log_path = _safe_path(user_data_dir, _UPDATES_LOG_FILE)
 
         # 1) الإصدار المحلي المحفوظ
@@ -135,14 +148,14 @@ def _background_update_worker(user_data_dir, current_version):
                         updated_log.append(f"✨ NEW: {topic}")
                     elif old_content != content:
                         updated_log.append(f"🔄 UPDATED: {topic}")
-        # المحذوفات (موجودة في القديم وغير موجودة في الجديد)
+        # المحذوفات
         for spec, subs in old_data.items():
             for sub, topics in subs.items():
                 for topic in topics:
                     if topic not in new_data.get(spec, {}).get(sub, {}):
                         updated_log.append(f"🗑️ REMOVED: {topic}")
 
-        # 6) ★ الاستبدال الكامل — الإصلاح الجوهري ★
+        # 6) ★ الاستبدال الكامل ★
         tmp = data_path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
             json.dump(new_data, f, ensure_ascii=False, indent=2)
