@@ -25,6 +25,7 @@ import data_pediatric_calculators
 import data_extensions
 import data_updater
 
+# --- مكتبات دعم اللغة العربية ---
 try:
     import arabic_reshaper
     from bidi.algorithm import get_display
@@ -57,6 +58,7 @@ try:
 except:
     pass
 
+# تسجيل الخط العربي
 try:
     LabelBase.register(name="ArabicFont", fn_regular="arabic.ttf")
 except:
@@ -316,6 +318,7 @@ class ModernHeader(BoxLayout):
         title_layout.add_widget(title_box)
         self.add_widget(title_layout)
 
+        # ★ زر القلب ★
         if heart_callback is not None:
             heart_btn = Button(
                 text="\u2665" if is_fav else "\u2661",
@@ -389,7 +392,8 @@ class JuniorDoctor(App):
         self.current_back_action = None
 
         self.sm = ScreenManager(transition=SlideTransition(duration=0.2))
-        for name in ("welcome", "disclaimer", "home", "subsystem", "category", "detail",
+        # ★ إضافة شاشتي welcome و disclaimer ★
+        for name in ("welcome", "disclaimer", "home", "subsystem", "category", "detail", 
                      "search", "topic_search", "notes", "note_edit", "settings", "favorites"):
             self.sm.add_widget(Screen(name=name))
 
@@ -400,6 +404,7 @@ class JuniorDoctor(App):
         self.main_container.add_widget(self.nav_bar)
 
         self.build_home()
+        # ★ بناء الشاشات الجديدة وبدء التطبيق منها ★
         self.build_welcome()
         self.build_disclaimer()
         self.go("welcome")
@@ -454,6 +459,7 @@ class JuniorDoctor(App):
             self.nav_bar.opacity = 0
             self.nav_bar.disabled = True
 
+        # ★ التحديثات تعمل فقط عند دخول شاشة Home ★
         if name == "home" and prev != "home":
             Clock.schedule_once(lambda dt: self.check_and_show_updates(), 0.5)
             Clock.schedule_once(lambda dt: self.check_and_show_announcement(), 0.8)
@@ -710,7 +716,7 @@ class JuniorDoctor(App):
         except Exception as e:
             print(f"Popup error: {e}")
 
-    # ================= WHAT'S NEW POPUP (بدون زر View) =================
+    # ================= WHAT'S NEW POPUP =================
     def check_and_show_updates(self):
         try:
             updates = data_updater.get_latest_updates(self.user_data_dir)
@@ -755,15 +761,10 @@ class JuniorDoctor(App):
             list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
             list_layout.bind(minimum_height=list_layout.setter("height"))
             
-            if new_topics:
-                list_layout.add_widget(make_wrapped_label("✨ New Topics", 13, "#2DD4BF", bold=True))
-                for t in new_topics:
-                    list_layout.add_widget(make_wrapped_label(f"  • {t}", 14, "#FFFFFF"))
-
-            if updated_topics:
-                list_layout.add_widget(make_wrapped_label("🔄 Updated Topics", 13, "#60A5FA", bold=True))
-                for t in updated_topics:
-                    list_layout.add_widget(make_wrapped_label(f"  • {t}", 14, "#FFFFFF"))
+            for t in new_topics:
+                list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
+            for t in updated_topics:
+                list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
                 
             scroll.add_widget(list_layout)
             content.add_widget(scroll)
@@ -1179,7 +1180,8 @@ class JuniorDoctor(App):
         scroll.add_widget(content)
         main_layout.add_widget(scroll)
         screen.add_widget(main_layout)
-            # ================= SEARCH (Global - Titles Only) =================
+
+    # ================= SEARCH (Global - Titles Only) =================
     def open_search(self, query=""):
         screen = self.sm.get_screen("search")
         screen.clear_widgets()
@@ -1558,19 +1560,8 @@ class JuniorDoctor(App):
             h_upper = heading.upper()
 
             if scheme == "image":
-                img_card = Card(bg=WHITE, padding=dp(10), radius=16)
-                if heading and heading.strip():
-                    img_card.add_widget(make_wrapped_label(heading, 13, NAVY, bold=True))
-                img = AsyncImage(
-                    source=body.strip(),
-                    size_hint_y=None,
-                    height=dp(280),
-                    allow_stretch=True,
-                    keep_ratio=True,
-                    nocache=False
-                )
-                img_card.add_widget(img)
-                content.add_widget(img_card)
+                img = AsyncImage(source=body, size_hint_y=None, height=dp(250))
+                content.add_widget(img)
                 continue
 
             if scheme == "danger" or any(w in h_upper for w in ("WARNING", "DON'T MISS", "CONTRAINDICATION")):
