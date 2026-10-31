@@ -710,7 +710,7 @@ class JuniorDoctor(App):
         except Exception as e:
             print(f"Popup error: {e}")
 
-    # ================= WHAT'S NEW POPUP =================
+    # ================= WHAT'S NEW POPUP (بدون زر View) =================
     def check_and_show_updates(self):
         try:
             updates = data_updater.get_latest_updates(self.user_data_dir)
@@ -721,13 +721,6 @@ class JuniorDoctor(App):
                     os.remove(file_path)
         except Exception as e:
             print(f"Error checking updates: {e}")
-
-    def _find_topic_location(self, topic_name):
-        for spec, subsystems in DATA.items():
-            for sub, topics in subsystems.items():
-                if topic_name in topics:
-                    return (spec, sub)
-        return (None, None)
 
     def show_whats_new_popup(self, updates_data):
         try:
@@ -755,44 +748,22 @@ class JuniorDoctor(App):
                 return
 
             content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
+            
             content.add_widget(make_wrapped_label("New & updated topics", 18, "#2DD4BF", bold=True))
             
             scroll = ScrollView()
-            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10))
+            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
             list_layout.bind(minimum_height=list_layout.setter("height"))
-
-            popup_holder = {"popup": None}
-
-            def open_topic_and_close(topic_name):
-                spec, _ = self._find_topic_location(topic_name)
-                if spec:
-                    if popup_holder["popup"]:
-                        try:
-                            popup_holder["popup"].dismiss()
-                        except Exception:
-                            pass
-                    self.open_detail(spec, topic_name)
-
-            def make_topic_row(topic_name, icon):
-                row = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(4))
-                row.bind(minimum_height=row.setter("height"))
-                row.add_widget(make_wrapped_label(f"{icon} {topic_name}", 14, "#FFFFFF"))
-                spec, _ = self._find_topic_location(topic_name)
-                if spec:
-                    view_btn = JDButton("View Topic", bg=TEAL, height=38, radius=10, font_size=13)
-                    view_btn.bind(on_release=lambda _, t=topic_name: open_topic_and_close(t))
-                    row.add_widget(view_btn)
-                return row
-
+            
             if new_topics:
                 list_layout.add_widget(make_wrapped_label("✨ New Topics", 13, "#2DD4BF", bold=True))
                 for t in new_topics:
-                    list_layout.add_widget(make_topic_row(t, "✨"))
+                    list_layout.add_widget(make_wrapped_label(f"  • {t}", 14, "#FFFFFF"))
 
             if updated_topics:
                 list_layout.add_widget(make_wrapped_label("🔄 Updated Topics", 13, "#60A5FA", bold=True))
                 for t in updated_topics:
-                    list_layout.add_widget(make_topic_row(t, "🔄"))
+                    list_layout.add_widget(make_wrapped_label(f"  • {t}", 14, "#FFFFFF"))
                 
             scroll.add_widget(list_layout)
             content.add_widget(scroll)
@@ -800,9 +771,8 @@ class JuniorDoctor(App):
             btn = JDButton("Got it!", bg=BLUE, height=45, radius=12, font_size=14)
             content.add_widget(btn)
             
-            popup = Popup(title="Update Alert", content=content, size_hint=(0.9, 0.65),
+            popup = Popup(title="Update Alert", content=content, size_hint=(0.9, 0.6),
                           background_color=get_color_from_hex("#0F172A"), title_color=get_color_from_hex("#FFFFFF"))
-            popup_holder["popup"] = popup
             btn.bind(on_release=lambda *_: popup.dismiss())
             popup.open()
         except Exception as e:
@@ -1588,8 +1558,19 @@ class JuniorDoctor(App):
             h_upper = heading.upper()
 
             if scheme == "image":
-                img = AsyncImage(source=body, size_hint_y=None, height=dp(250))
-                content.add_widget(img)
+                img_card = Card(bg=WHITE, padding=dp(10), radius=16)
+                if heading and heading.strip():
+                    img_card.add_widget(make_wrapped_label(heading, 13, NAVY, bold=True))
+                img = AsyncImage(
+                    source=body.strip(),
+                    size_hint_y=None,
+                    height=dp(280),
+                    allow_stretch=True,
+                    keep_ratio=True,
+                    nocache=False
+                )
+                img_card.add_widget(img)
+                content.add_widget(img_card)
                 continue
 
             if scheme == "danger" or any(w in h_upper for w in ("WARNING", "DON'T MISS", "CONTRAINDICATION")):
