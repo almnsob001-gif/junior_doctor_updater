@@ -67,7 +67,53 @@
     },
     "Endocrinology": {},
     "Neurology": {},
-    "Infectious": {},
+    "Infectious": {
+      "Tetanus": [
+  ["TETANUS", "info", "[b]Emergency Medicine & Critical Care[/b]\nLife-threatening neurological disease caused by tetanospasmin, a neurotoxin produced by Clostridium tetani."],
+  
+  ["DEFINITION & PATHOPHYSIOLOGY", "info", "Tetanus is caused by tetanospasmin, a potent neurotoxin produced by [b]Clostridium tetani[/b] (anaerobic, spore-forming bacterium).\n\n• The toxin blocks inhibitory neurotransmission (GABA and glycine).\n• Results in muscle rigidity, painful spasms, and autonomic dysfunction.\n• [b]Important:[/b] Tetanus is not transmitted from person to person. Natural infection does not produce reliable immunity."],
+  
+  ["RECOGNIZE TETANUS (CLINICAL FEATURES)", "warning", "[b]Typical features:[/b]\n• Trismus (lockjaw) - inability to open the mouth.\n• Neck stiffness, dysphagia, difficulty swallowing.\n• Generalized muscle rigidity.\n• Painful muscle spasms triggered by light, sound, or touch.\n• Risus sardonicus (facial grimacing).\n• Opisthotonus (severe arching of the back).\n• Abdominal muscle rigidity.\n\n[b]Severe disease:[/b]\n• Recurrent generalized spasms.\n• Laryngospasm and respiratory muscle involvement.\n• Autonomic instability (tachycardia, hypertension alternating with hypotension, sweating, fever, arrhythmias).\n\n[b]Incubation period:[/b] Usually 3–21 days. Shorter incubation = more severe disease."],
+  
+  ["CLINICAL DIAGNOSIS", "warning", "Tetanus is primarily a [b]clinical diagnosis[/b] based on characteristic symptoms and history of a wound or incomplete vaccination.\n\n[b]Important:[/b]\n• A visible wound may be absent or already healed.\n• A negative wound culture does NOT exclude tetanus.\n• Do not delay treatment while waiting for laboratory confirmation."],
+  
+  ["CLASSIFICATION", "info", "[b]1. Generalized tetanus:[/b] Most common. Rigidity, painful spasms, trismus. May progress to respiratory failure.\n\n[b]2. Localized tetanus:[/b] Persistent rigidity/spasms near the injury site. May progress to generalized.\n\n[b]3. Cephalic tetanus:[/b] Associated with head injuries/infections. Cranial nerve dysfunction, facial weakness, trismus.\n\n[b]4. Neonatal tetanus:[/b] Infants of inadequately immunized mothers. Umbilical stump contamination. Inability to suck, irritability, rigidity, spasms."],
+  
+  ["INITIAL ASSESSMENT & RED FLAGS", "danger", "[b]Immediate actions:[/b]\n• Assess ABCs.\n• Place patient in a quiet, low-stimulation environment.\n• Minimize handling, light, and noise.\n• Assess spasms, swallowing, and aspiration risk.\n• Identify wound/source. Check immunization history.\n• Arrange early ICU admission for severe disease.\n\n[b]Red Flags:[/b]\n• Severe/recurrent spasms.\n• Apnea or respiratory distress, laryngospasm.\n• Dysphagia with inability to handle secretions.\n• Autonomic instability (severe HTN, arrhythmias).\n• Rapidly progressive rigidity."],
+  
+  ["INVESTIGATIONS & DIFFERENTIAL", "info", "Diagnosis is clinical. Investigations assess complications.\n\n[b]Labs:[/b] CBC, electrolytes (K, Ca, Mg), renal/liver function, glucose, CK (rhabdomyolysis), blood gas, urinalysis.\n\n[b]Additional:[/b] ECG/cardiac monitoring, CXR (if aspiration), blood cultures, wound culture.\n\n[b]Differential diagnosis:[/b]\n• Strychnine poisoning.\n• Acute dystonic reactions.\n• Hypocalcemic tetany.\n• Meningitis/encephalitis.\n• Rabies.\n• Neuroleptic malignant syndrome.\n• Stiff-person syndrome."],
+  
+  ["MANAGEMENT GOALS", "success", "Tetanus is a medical emergency requiring prolonged multidisciplinary care.\n\n[b]Main goals:[/b]\n1. Neutralize unbound toxin.\n2. Stop further toxin production.\n3. Control muscle spasms.\n4. Maintain airway and ventilation.\n5. Manage autonomic dysfunction.\n6. Provide supportive critical care.\n7. Complete active immunization."],
+  
+  ["1. TETANUS IMMUNE GLOBULIN (TIG)", "success", "[b]Purpose:[/b] Neutralizes circulating toxin not yet bound to nerve tissue.\n\n[b]Dose:[/b] 500 IU IM once (CDC guidance). Some protocols use higher doses (follow local guidance).\n\n[b]Administration:[/b]\n• Give ASAP.\n• If feasible, infiltrate part around the wound and give remainder IM at a separate site.\n• Do NOT mix with tetanus vaccine in the same syringe/site.\n\n[b]Important warnings:[/b]\n• TIG cannot neutralize toxin already bound to nerve endings.\n• Do not delay TIG for wound culture.\n• Use human TIG over equine antitoxin when available."],
+  
+  ["2. WOUND MANAGEMENT", "success", "• Identify the source of infection.\n• Clean the wound thoroughly.\n• Remove foreign material.\n• Surgical debridement of necrotic/devitalized tissue when indicated.\n• [b]Do not delay TIG or antibiotics while arranging debridement.[/b]\n\n[b]Important:[/b] A wound may appear minor but still be associated with tetanus."],
+  
+  ["3. ANTIBIOTIC THERAPY", "success", "[b]Preferred: Metronidazole[/b]\n• Dose: 500 mg IV every 6–8 hours.\n• Duration: 7–10 days.\n• Oral therapy if stable and able to swallow.\n\n[b]Alternative: Penicillin G[/b] (per local protocols).\n\n[b]Important:[/b]\n• Antibiotics reduce further toxin production.\n• They do NOT neutralize toxin already produced.\n• Debridement remains essential."],
+  
+  ["4. CONTROL OF MUSCLE SPASMS", "success", "[b]First-line: Benzodiazepines[/b] (enhance GABA inhibition).\n\n[b]Diazepam:[/b]\n• Initial: 5–10 mg IV slowly.\n• Repeat/titrate per spasm control and respiratory status.\n• Severe cases may need continuous infusion in ICU.\n\n[b]Midazolam:[/b]\n• Intermittent IV doses or continuous infusion in severe disease.\n\n[b]Warning:[/b] Benzodiazepines cause respiratory depression and hypotension. Continuous infusions require close monitoring and airway support capability. Avoid unnecessary stimulation."],
+  
+  ["ADDITIONAL OPTIONS FOR REFRACTORY SPASMS", "danger", "• [b]Magnesium sulfate:[/b] May reduce spasms and autonomic instability.\n• [b]Neuromuscular blocking agents:[/b] Required in ventilated patients with severe refractory spasms.\n• [b]Critical Warning:[/b] Neuromuscular blockade does NOT provide sedation or analgesia. Adequate sedation and analgesia must be maintained."],
+  
+  ["5. AUTONOMIC DYSFUNCTION", "danger", "Autonomic instability may cause severe BP and HR fluctuations.\n\n[b]Management:[/b]\n• Continuous ECG and BP monitoring.\n• Correct hypoxia, pain, fever, and electrolyte abnormalities.\n• Magnesium sulfate (under ICU supervision).\n• Short-acting agents (e.g., esmolol) for severe tachycardia/HTN.\n• Treat hypotension with fluids and vasopressors when indicated.\n\n[b]Warning:[/b]\n• Avoid long-acting antihypertensives (BP is highly labile).\n• Avoid excessive beta-blockade (risk of profound bradycardia and cardiovascular collapse)."],
+  
+  ["6. AIRWAY & RESPIRATORY SUPPORT", "danger", "[b]Indications for early airway intervention:[/b]\n• Recurrent severe generalized spasms.\n• Laryngospasm, respiratory muscle involvement.\n• Apnea or hypoventilation, inability to protect airway.\n• Severe dysphagia and aspiration risk.\n• Requirement for deep sedation or neuromuscular blockade.\n\n[b]Management:[/b]\n• Early ICU and anesthetic assessment.\n• Prepare for difficult airway.\n• Endotracheal intubation and mechanical ventilation when indicated.\n• Consider tracheostomy for prolonged support.\n\n[b]Important:[/b] Do NOT wait for respiratory arrest before securing the airway."],
+  
+  ["7. SUPPORTIVE ICU CARE", "info", "• Quiet, low-stimulation environment.\n• Adequate hydration and nutrition (enteral feeding when safe).\n• Monitor fluid balance and urine output.\n• Prevent pressure injuries.\n• VTE prophylaxis when appropriate.\n• Monitor for aspiration/VAP.\n• Monitor CK, renal function, and urine output (rhabdomyolysis).\n• Correct electrolytes.\n• Adequate analgesia and sedation.\n• Initiate rehabilitation/physiotherapy when appropriate."],
+  
+  ["8. ACTIVE IMMUNIZATION", "warning", "[b]Important: Having tetanus does not provide reliable immunity.[/b]\n\n• All patients recovering from tetanus should receive an age-appropriate tetanus-containing vaccine series.\n• Use Td or Tdap according to age and national guidance.\n• Do NOT administer the vaccine in the same syringe/site as TIG."],
+  
+  ["TETANUS POST-EXPOSURE PROPHYLAXIS (PEP)", "warning", "[b]1. Clean, minor wounds:[/b]\n• Clean wound.\n• Give vaccine if history incomplete/unknown, or last dose ≥10 years ago.\n• TIG is NOT indicated.\n\n[b]2. Dirty or major wounds:[/b] (Puncture, soil/feces/saliva, burns, crush, compound fracture, necrotic tissue).\n• Give vaccine if history unknown/incomplete, <3 doses, or last dose ≥5 years ago.\n• Give [b]TIG 250 IU IM[/b] if history unknown/incomplete or <3 previous doses.\n• TIG is also indicated for HIV/severe immunodeficiency with contaminated wounds.\n\n[b]Important:[/b] Antibiotics are NOT recommended solely to prevent tetanus after a wound."],
+  
+  ["COMPLICATIONS", "danger", "• Respiratory failure.\n• Laryngospasm.\n• Aspiration pneumonia.\n• Autonomic instability and arrhythmias.\n• Rhabdomyolysis.\n• Acute kidney injury.\n• DVT and pulmonary embolism.\n• Pressure injuries.\n• Hospital-acquired infections.\n• Prolonged muscle weakness and functional impairment."],
+  
+  ["DISPOSITION & FOLLOW-UP", "info", "[b]ICU Admission:[/b] Generalized tetanus, severe/recurrent spasms, respiratory compromise, autonomic instability, need for deep sedation/ventilation.\n\n[b]Hospital Admission:[/b] Localized tetanus, suspected tetanus requiring specialist assessment, wound complications requiring surgery.\n\n[b]Follow-up:[/b] Complete vaccination series, assess functional recovery, wound care, rehabilitation."],
+  
+  ["CLINICAL PEARLS", "info", "• Tetanus is a clinical diagnosis; treatment must not wait for labs.\n• Trismus and painful spasms following a wound = immediate suspicion.\n• TIG neutralizes ONLY unbound toxin.\n• Wound debridement and metronidazole stop further toxin production.\n• Benzodiazepines are central to spasm control.\n• Severe tetanus may require prolonged mechanical ventilation and ICU care.\n• Minimize light, noise, and unnecessary stimulation.\n• Natural infection does not confer reliable immunity; vaccination is required.\n• Always assess the airway early (laryngospasm and respiratory failure can be fatal)."],
+  
+  ["REFERENCES", "info", "• CDC. Clinical Care of Tetanus.\n• CDC. Clinical Guidance for Wound Management to Prevent Tetanus.\n• WHO. Tetanus – Fact Sheet.\n• WHO. Tetanus Vaccines: WHO Position Paper.\n• CDC. Epidemiology and Prevention of Vaccine-Preventable Diseases (The Pink Book), Tetanus Chapter.\n\n[b]Clinical note:[/b] Tetanus is a life-threatening condition requiring urgent specialist and critical-care management. Follow current national guidelines and local protocols."]
+    ]
+    },
     "Toxicology": {},
     "Environmental": {},
     "Oncology": {},
