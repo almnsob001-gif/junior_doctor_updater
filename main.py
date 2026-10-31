@@ -25,7 +25,6 @@ import data_pediatric_calculators
 import data_extensions
 import data_updater
 
-# --- مكتبات دعم اللغة العربية ---
 try:
     import arabic_reshaper
     from bidi.algorithm import get_display
@@ -58,7 +57,6 @@ try:
 except:
     pass
 
-# تسجيل الخط العربي
 try:
     LabelBase.register(name="ArabicFont", fn_regular="arabic.ttf")
 except:
@@ -318,7 +316,6 @@ class ModernHeader(BoxLayout):
         title_layout.add_widget(title_box)
         self.add_widget(title_layout)
 
-        # ★ زر القلب ★
         if heart_callback is not None:
             heart_btn = Button(
                 text="\u2665" if is_fav else "\u2661",
@@ -392,8 +389,8 @@ class JuniorDoctor(App):
         self.current_back_action = None
 
         self.sm = ScreenManager(transition=SlideTransition(duration=0.2))
-        for name in ("home", "subsystem", "category", "detail", "search", "topic_search",
-                     "notes", "note_edit", "settings", "favorites"):
+        for name in ("welcome", "disclaimer", "home", "subsystem", "category", "detail",
+                     "search", "topic_search", "notes", "note_edit", "settings", "favorites"):
             self.sm.add_widget(Screen(name=name))
 
         self.nav_bar = self.build_bottom_nav()
@@ -403,6 +400,9 @@ class JuniorDoctor(App):
         self.main_container.add_widget(self.nav_bar)
 
         self.build_home()
+        self.build_welcome()
+        self.build_disclaimer()
+        self.go("welcome")
         return self.main_container
 
     def build_bottom_nav(self):
@@ -441,6 +441,7 @@ class JuniorDoctor(App):
             btn.color = get_color_from_hex(BLUE if key == active_screen else MUTED)
 
     def go(self, name):
+        prev = self.sm.current
         self.sm.current = name
         
         if name in ("home", "favorites", "notes", "settings"):
@@ -452,6 +453,10 @@ class JuniorDoctor(App):
             self.nav_bar.height = 0
             self.nav_bar.opacity = 0
             self.nav_bar.disabled = True
+
+        if name == "home" and prev != "home":
+            Clock.schedule_once(lambda dt: self.check_and_show_updates(), 0.5)
+            Clock.schedule_once(lambda dt: self.check_and_show_announcement(), 0.8)
 
     def on_keyboard(self, window, key, scancode, codepoint, modifier):
         if key == 27:
@@ -469,6 +474,107 @@ class JuniorDoctor(App):
             webbrowser.open(url)
         except Exception as e:
             print("Could not open browser:", e)
+
+    # ================= WELCOME SCREEN =================
+    def build_welcome(self):
+        screen = self.sm.get_screen("welcome")
+        screen.clear_widgets()
+        self.current_back_action = None
+
+        main = BoxLayout(orientation="vertical", padding=[dp(30), dp(30), dp(30), dp(30)], spacing=dp(15))
+        draw_card_bg(main, HERO_BG, radius=0, shadow=False)
+
+        main.add_widget(BoxLayout(size_hint_y=0.15))
+
+        icon_row = BoxLayout(size_hint_y=None, height=dp(180))
+        icon_row.add_widget(BoxLayout(size_hint_x=0.2))
+
+        icon_box = BoxLayout(size_hint=(None, 1), width=dp(180))
+        draw_card_bg(icon_box, BLUE, radius=90, shadow=False)
+        icon_box.add_widget(Label(text="\u2695", font_size=sp(100),
+                                  color=get_color_from_hex(WHITE), bold=True,
+                                  halign="center", valign="middle"))
+        icon_row.add_widget(icon_box)
+        icon_row.add_widget(BoxLayout(size_hint_x=0.2))
+        main.add_widget(icon_row)
+
+        main.add_widget(Label(
+            text="Junior Doctor",
+            font_size=sp(38), bold=True,
+            color=get_color_from_hex(WHITE),
+            size_hint_y=None, height=dp(55),
+            halign="center", valign="middle",
+            text_size=(Window.width - dp(60), None)
+        ))
+        main.add_widget(Label(
+            text="Your Clinical Companion",
+            font_size=sp(14), bold=True,
+            color=get_color_from_hex("#60A5FA"),
+            size_hint_y=None, height=dp(30),
+            halign="center", valign="middle"
+        ))
+
+        main.add_widget(BoxLayout(size_hint_y=0.3))
+
+        get_started = JDButton("Get Started", bg=BLUE, height=60, radius=30, font_size=18)
+        get_started.bind(on_release=lambda *_: self.go("disclaimer"))
+        main.add_widget(get_started)
+
+        main.add_widget(BoxLayout(size_hint_y=0.1))
+
+        screen.add_widget(main)
+
+    # ================= DISCLAIMER SCREEN =================
+    def build_disclaimer(self):
+        screen = self.sm.get_screen("disclaimer")
+        screen.clear_widgets()
+        self.current_back_action = lambda: self.go("welcome")
+
+        main = BoxLayout(orientation="vertical", padding=dp(0), spacing=dp(0))
+        draw_card_bg(main, BG_COLOR, radius=0, shadow=False)
+
+        main.add_widget(ModernHeader("Medical Disclaimer", "PLEASE READ CAREFULLY", bg_color=HEADER_NAVY))
+
+        scroll = ScrollView(do_scroll_x=False)
+        content = BoxLayout(orientation="vertical", spacing=dp(15), size_hint_y=None,
+                            padding=[dp(20), dp(15), dp(20), dp(30)])
+        content.bind(minimum_height=content.setter("height"))
+
+        title_card = Card(bg=CARD_BLUE, padding=20)
+        title_card.add_widget(make_wrapped_label("Important Notice", 18, NAVY, bold=True))
+        title_card.add_widget(make_wrapped_label(
+            "This application is intended for educational and quick-reference purposes only. "
+            "It is designed to support — not replace — the clinical judgment of qualified "
+            "healthcare professionals.",
+            13, TEXT))
+        content.add_widget(title_card)
+
+        points_card = Card(bg=CARD_PURPLE, padding=20)
+        points_card.add_widget(make_wrapped_label("Key Points", 15, NAVY, bold=True))
+        points = [
+            "This app does NOT provide medical diagnosis, treatment, or prescription advice.",
+            "Dosing information and clinical protocols may vary by region, institution, and patient context. Always verify against local guidelines and the most recent official references before clinical application.",
+            "The developers and contributors accept no liability for any clinical decision, action, or outcome resulting from the use of this application.",
+            "By proceeding, you confirm that you are a healthcare professional or a medical trainee under supervision.",
+        ]
+        for p in points:
+            row = BoxLayout(size_hint_y=None, spacing=dp(8))
+            row.bind(minimum_height=row.setter("height"))
+            row.add_widget(Label(text="•", font_size=sp(20), bold=True,
+                                 color=get_color_from_hex(BLUE),
+                                 size_hint=(None, None), size=(dp(20), dp(20)),
+                                 halign="center", valign="top"))
+            row.add_widget(make_wrapped_label(p, 13, TEXT))
+            points_card.add_widget(row)
+        content.add_widget(points_card)
+
+        agree_btn = JDButton("I Understand & Continue", bg=TEAL, height=60, radius=30, font_size=16)
+        agree_btn.bind(on_release=lambda *_: self.go("home"))
+        content.add_widget(agree_btn)
+
+        scroll.add_widget(content)
+        main.add_widget(scroll)
+        screen.add_widget(main)
 
     # ================= SETTINGS =================
     def get_settings_file(self):
@@ -616,6 +722,13 @@ class JuniorDoctor(App):
         except Exception as e:
             print(f"Error checking updates: {e}")
 
+    def _find_topic_location(self, topic_name):
+        for spec, subsystems in DATA.items():
+            for sub, topics in subsystems.items():
+                if topic_name in topics:
+                    return (spec, sub)
+        return (None, None)
+
     def show_whats_new_popup(self, updates_data):
         try:
             topics = updates_data.get("topics", [])
@@ -642,17 +755,44 @@ class JuniorDoctor(App):
                 return
 
             content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
-            
             content.add_widget(make_wrapped_label("New & updated topics", 18, "#2DD4BF", bold=True))
             
             scroll = ScrollView()
-            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
+            list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10))
             list_layout.bind(minimum_height=list_layout.setter("height"))
-            
-            for t in new_topics:
-                list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
-            for t in updated_topics:
-                list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
+
+            popup_holder = {"popup": None}
+
+            def open_topic_and_close(topic_name):
+                spec, _ = self._find_topic_location(topic_name)
+                if spec:
+                    if popup_holder["popup"]:
+                        try:
+                            popup_holder["popup"].dismiss()
+                        except Exception:
+                            pass
+                    self.open_detail(spec, topic_name)
+
+            def make_topic_row(topic_name, icon):
+                row = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(4))
+                row.bind(minimum_height=row.setter("height"))
+                row.add_widget(make_wrapped_label(f"{icon} {topic_name}", 14, "#FFFFFF"))
+                spec, _ = self._find_topic_location(topic_name)
+                if spec:
+                    view_btn = JDButton("View Topic", bg=TEAL, height=38, radius=10, font_size=13)
+                    view_btn.bind(on_release=lambda _, t=topic_name: open_topic_and_close(t))
+                    row.add_widget(view_btn)
+                return row
+
+            if new_topics:
+                list_layout.add_widget(make_wrapped_label("✨ New Topics", 13, "#2DD4BF", bold=True))
+                for t in new_topics:
+                    list_layout.add_widget(make_topic_row(t, "✨"))
+
+            if updated_topics:
+                list_layout.add_widget(make_wrapped_label("🔄 Updated Topics", 13, "#60A5FA", bold=True))
+                for t in updated_topics:
+                    list_layout.add_widget(make_topic_row(t, "🔄"))
                 
             scroll.add_widget(list_layout)
             content.add_widget(scroll)
@@ -660,8 +800,9 @@ class JuniorDoctor(App):
             btn = JDButton("Got it!", bg=BLUE, height=45, radius=12, font_size=14)
             content.add_widget(btn)
             
-            popup = Popup(title="Update Alert", content=content, size_hint=(0.9, 0.6),
+            popup = Popup(title="Update Alert", content=content, size_hint=(0.9, 0.65),
                           background_color=get_color_from_hex("#0F172A"), title_color=get_color_from_hex("#FFFFFF"))
+            popup_holder["popup"] = popup
             btn.bind(on_release=lambda *_: popup.dismiss())
             popup.open()
         except Exception as e:
@@ -1068,11 +1209,7 @@ class JuniorDoctor(App):
         scroll.add_widget(content)
         main_layout.add_widget(scroll)
         screen.add_widget(main_layout)
-        
-        Clock.schedule_once(lambda dt: self.check_and_show_updates(), 0.5)
-        Clock.schedule_once(lambda dt: self.check_and_show_announcement(), 0.8)
-
-    # ================= SEARCH (Global - Titles Only) =================
+            # ================= SEARCH (Global - Titles Only) =================
     def open_search(self, query=""):
         screen = self.sm.get_screen("search")
         screen.clear_widgets()
