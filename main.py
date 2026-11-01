@@ -574,6 +574,7 @@ class JuniorDoctor(App):
             points_card.add_widget(row)
         content.add_widget(points_card)
 
+        # ★ عند الضغط على الزر، نحفظ أن المستخدم قرأ الشاشات ★
         def accept_disclaimer(*_):
             self.settings["has_seen_welcome"] = True
             self.save_settings(self.settings)
@@ -600,45 +601,9 @@ class JuniorDoctor(App):
     def load_settings(self):
         try:
             with open(self.get_settings_file(), 'r', encoding='utf-8') as f:
-                settings = json.load(f)
-                if "app_password" not in settings:
-                    settings["app_password"] = "774602007#"
-                if "locked_topics" not in settings:
-                    settings["locked_topics"] = [
-                        "Hypernatremia and Severe Water Deficit",
-                        "Pulmonary-Renal Syndrome and Diffuse Alveolar Hemorrhage",
-                        "Acute Pancreatitis and Severe Pancreatitis",
-                        "Acute Cholangitis and Obstructive Jaundice",
-                        "Acute Mesenteric Ischemia",
-                        "Acute Esophageal Variceal Hemorrhage",
-                        "Severe Calcium Disorders: Hypercalcemia and Hypocalcemia",
-                        "Acute Adrenal Incidental Hemorrhage with Adrenal Crisis",
-                        "Guillain-Barré Syndrome (GBS)",
-                        "Myasthenic Crisis",
-                        "Acute Spinal Cord Compression",
-                        "Cauda Equina Syndrome"
-                    ]
-                return settings
+                return json.load(f)
         except Exception:
-            return {
-                "theme": "light", 
-                "has_seen_welcome": False, 
-                "app_password": "774602007#", 
-                "locked_topics": [
-                    "Hypernatremia and Severe Water Deficit",
-                    "Pulmonary-Renal Syndrome and Diffuse Alveolar Hemorrhage",
-                    "Acute Pancreatitis and Severe Pancreatitis",
-                    "Acute Cholangitis and Obstructive Jaundice",
-                    "Acute Mesenteric Ischemia",
-                    "Acute Esophageal Variceal Hemorrhage",
-                    "Severe Calcium Disorders: Hypercalcemia and Hypocalcemia",
-                    "Acute Adrenal Incidental Hemorrhage with Adrenal Crisis",
-                    "Guillain-Barré Syndrome (GBS)",
-                    "Myasthenic Crisis",
-                    "Acute Spinal Cord Compression",
-                    "Cauda Equina Syndrome"
-                ]
-            }
+            return {"theme": "light", "has_seen_welcome": False}
 
     def save_settings(self, settings):
         try:
@@ -1525,16 +1490,8 @@ class JuniorDoctor(App):
                 row.add_widget(title_box)
                 card.add_widget(row)
                 
-                # ★ التحقق مما إذا كان الموضوع مقفلاً ★
-                is_topic_locked = topic in self.settings.get("locked_topics", [])
-                
-                if is_topic_locked:
-                    btn = JDButton("🔒 Locked", bg=RED, height=38, radius=10, font_size=13)
-                    btn.bind(on_release=lambda _, s=specialty, t=topic: self.show_unlock_topic_popup(s, t))
-                else:
-                    btn = JDButton("Read Topic", bg=BLUE, height=38, radius=10, font_size=13)
-                    btn.bind(on_release=lambda _, t=topic: self.open_detail(specialty, t))
-                
+                btn = JDButton("Read Topic", bg=BLUE, height=38, radius=10, font_size=13)
+                btn.bind(on_release=lambda _, t=topic: self.open_detail(specialty, t))
                 card.add_widget(btn)
                 content.add_widget(card)
 
@@ -1542,51 +1499,6 @@ class JuniorDoctor(App):
         main_layout.add_widget(scroll)
         screen.add_widget(main_layout)
         self.go("category")
-
-    # ★ دالة نافذة طلب كلمة السر للموضوع ★
-    def show_unlock_topic_popup(self, specialty, topic):
-        content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(15))
-        
-        content.add_widget(make_wrapped_label(
-            f"Enter password to unlock:\n{topic}", 14, NAVY, bold=True))
-        
-        pwd_input = TextInput(
-            hint_text="Password", password=True, multiline=False,
-            font_size=sp(16), size_hint_y=None, height=dp(45),
-            background_color=get_color_from_hex(INPUT_BG),
-            foreground_color=get_color_from_hex(TEXT),
-            cursor_color=get_color_from_hex(BLUE),
-            padding=[dp(10), dp(10), dp(10), dp(10)]
-        )
-        content.add_widget(pwd_input)
-        
-        btn_row = BoxLayout(size_hint_y=None, height=dp(45), spacing=dp(10))
-        cancel_btn = JDButton("Cancel", bg=MUTED, height=45, radius=12, font_size=14)
-        unlock_btn = JDButton("Unlock", bg=TEAL, height=45, radius=12, font_size=14)
-        
-        btn_row.add_widget(cancel_btn)
-        btn_row.add_widget(unlock_btn)
-        content.add_widget(btn_row)
-        
-        popup = Popup(title="Premium Topic", content=content, size_hint=(0.85, 0.45),
-                      background_color=get_color_from_hex(SURFACE),
-                      title_color=get_color_from_hex(NAVY),
-                      title_align="center")
-        
-        def do_unlock(*_):
-            correct_password = self.settings.get("app_password", "774602007#")
-            if pwd_input.text == correct_password:
-                popup.dismiss()
-                self.open_detail(specialty, topic)
-            else:
-                pwd_input.text = ""
-                pwd_input.hint_text = "Wrong password! Try again."
-        
-        unlock_btn.bind(on_release=do_unlock)
-        cancel_btn.bind(on_release=popup.dismiss)
-        
-        popup.open()
-        Clock.schedule_once(lambda dt: setattr(pwd_input, 'focus', True), 0.3)
 
     def open_detail(self, specialty, topic):
         if specialty in ("Clinical Calculators", "Pediatric Calculators"):
