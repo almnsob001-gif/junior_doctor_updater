@@ -370,7 +370,6 @@ class JuniorDoctor(App):
         except Exception as e:
             print(f"Updater error: {e}")
 
-        # ★ المنطق الذكي: حماية المواضيع الأصلية وحذف المواضيع المحملة فقط ★
         prev_downloaded_map = {}
         try:
             prev_map_file = os.path.join(self.user_data_dir, "downloaded_topics_map.json")
@@ -383,7 +382,6 @@ class JuniorDoctor(App):
         if downloaded_topics:
             new_downloaded_map = {}
             
-            # 1. إضافة وتحديث مواضيع GitHub
             for spec_name, subs in downloaded_topics.items():
                 if spec_name not in DATA:
                     DATA[spec_name] = {}
@@ -403,7 +401,6 @@ class JuniorDoctor(App):
                         ]
                         TOPIC_PAGES[(spec_name, topic_name)] = formatted_content
             
-            # 2. حذف المواضيع التي كانت محملة سابقاً واختفت من GitHub
             for spec_name, subs in prev_downloaded_map.items():
                 for sub_name, old_topics in subs.items():
                     new_topics_list = new_downloaded_map.get(spec_name, {}).get(sub_name, [])
@@ -413,7 +410,6 @@ class JuniorDoctor(App):
                                 if old_topic in DATA[spec_name][sub_name]:
                                     DATA[spec_name][sub_name].remove(old_topic)
             
-            # 3. حفظ سجل المواضيع المحملة الجديد
             try:
                 with open(prev_map_file, 'w', encoding='utf-8') as f:
                     json.dump(new_downloaded_map, f, ensure_ascii=False, indent=2)
@@ -504,7 +500,14 @@ class JuniorDoctor(App):
                 self.current_back_action()
                 return True
             else:
-                # ★ التعديل: عند الضغط على زر الرجوع بدون إجراء، اخرج من التطبيق ★
+                from kivy.utils import platform
+                if platform == 'android':
+                    try:
+                        from jnius import autoclass
+                        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+                        PythonActivity.mActivity.finish()
+                    except Exception as e:
+                        print(f"Finish error: {e}")
                 self.stop()
                 return True
         return False
