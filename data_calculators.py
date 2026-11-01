@@ -11,7 +11,8 @@ CALCULATORS_DATA = {
             "Glasgow Coma Scale (GCS)", "Holliday-Segar Maintenance Fluids",
             "Free Water Deficit", "Bicarbonate Deficit", "FENa (Fractional Excretion of Sodium)",
             "Wells Score for DVT", "Wells Score for PE", "CHA2DS2-VASc Score",
-            "HAS-BLED Score", "Child-Pugh Score"
+            "HAS-BLED Score", "Child-Pugh Score",
+            "Expected Day of Delivery (EDD)", "Gestational Age (GA)"
         ]
     }
 }
@@ -294,5 +295,33 @@ CALCULATOR_DEFINITIONS = {
         "unit": "points",
         "interpretation": "5-6: Class A (well-compensated).\n7-9: Class B (significant functional compromise).\n10-15: Class C (decompensated, poor prognosis).",
         "reference": "Child & Turcotte (1964); Pugh et al. (1973)."
+    },
+    "Expected Day of Delivery (EDD)": {
+        "description": "Estimates the Estimated Date of Delivery (EDD) using Naegele's Rule (LMP + 280 days). Pick today's date and the first day of the Last Menstrual Period using the date selectors below.",
+        "kind": "date_range",
+        "output": "edd",
+        "fields": [
+            {"key": "today_date", "label": "Today's Date"},
+            {"key": "lmp_date", "label": "Last Menstrual Period (LMP)"}
+        ],
+        "formula_text": "EDD = LMP + 280 days (40 weeks)",
+        "formula": "",
+        "unit": "",
+        "interpretation": "The result shows:\n• EDD date\n• Days remaining until EDD\n• Current Gestational Age\n\n[b]Term classification:[/b]\n• Preterm: < 37 weeks.\n• Full term: 39–40 weeks.\n• Post-term: ≥ 42 weeks.\n\n[b]Accuracy notes:[/b]\n• Naegele's rule assumes 28-day regular cycles.\n• First-trimester ultrasound is more accurate if LMP is uncertain.",
+        "reference": "ACOG Committee Opinion No. 700 (2017). Methods for Estimating the Due Date. Obstet Gynecol."
+    },
+    "Gestational Age (GA)": {
+        "description": "Calculates current Gestational Age from the Last Menstrual Period up to today. Pick today's date and the LMP date using the date selectors below.",
+        "kind": "date_range",
+        "output": "ga",
+        "fields": [
+            {"key": "today_date", "label": "Today's Date"},
+            {"key": "lmp_date", "label": "Last Menstrual Period (LMP)"}
+        ],
+        "formula_text": "GA = (Today − LMP) in weeks + days",
+        "formula": "",
+        "unit": "",
+        "interpretation": "The result shows:\n• Gestational Age in weeks + days\n• Total days of pregnancy\n• Calculated EDD\n\n[b]Trimesters:[/b]\n• 1st: 0–13 weeks.\n• 2nd: 14–27 weeks.\n• 3rd: 28+ weeks.\n\n[b]Term classification:[/b]\n• Preterm: < 37 weeks.\n• Early term: 37–38 weeks.\n• Full term: 39–40 weeks.\n• Late term: 41 weeks.\n• Post-term: ≥ 42 weeks.",
+        "reference": "ACOG Committee Opinion No. 700 (2017). WHO Antenatal Care Guidelines (2016)."
     }
 }
