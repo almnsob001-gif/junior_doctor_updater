@@ -64,7 +64,6 @@ except:
     print("Warning: arabic.ttf not found. Arabic text might not display correctly.")
 
 
-
 # ================= دمج البيانات =================
 DATA = {}
 DATA.update(data_medical.MEDICAL_DATA)
@@ -373,7 +372,6 @@ class JuniorDoctor(App):
         except Exception as e:
             print(f"Updater error: {e}")
 
-        # ★ المنطق الذكي: حماية المواضيع الأصلية وحذف المواضيع المحملة فقط ★
         prev_downloaded_map = {}
         try:
             prev_map_file = os.path.join(self.user_data_dir, "downloaded_topics_map.json")
@@ -386,7 +384,6 @@ class JuniorDoctor(App):
         if downloaded_topics:
             new_downloaded_map = {}
             
-            # 1. إضافة وتحديث مواضيع GitHub
             for spec_name, subs in downloaded_topics.items():
                 if spec_name not in DATA:
                     DATA[spec_name] = {}
@@ -406,7 +403,6 @@ class JuniorDoctor(App):
                         ]
                         TOPIC_PAGES[(spec_name, topic_name)] = formatted_content
             
-            # 2. حذف المواضيع التي كانت محملة سابقاً واختفت من GitHub
             for spec_name, subs in prev_downloaded_map.items():
                 for sub_name, old_topics in subs.items():
                     new_topics_list = new_downloaded_map.get(spec_name, {}).get(sub_name, [])
@@ -416,7 +412,6 @@ class JuniorDoctor(App):
                                 if old_topic in DATA[spec_name][sub_name]:
                                     DATA[spec_name][sub_name].remove(old_topic)
             
-            # 3. حفظ سجل المواضيع المحملة الجديد
             try:
                 with open(prev_map_file, 'w', encoding='utf-8') as f:
                     json.dump(new_downloaded_map, f, ensure_ascii=False, indent=2)
@@ -425,6 +420,13 @@ class JuniorDoctor(App):
 
         Window.bind(on_keyboard=self.on_keyboard)
         self.current_back_action = None
+
+        # ★ جديد: ذاكرة مواضع التمرير
+        self.scroll_positions = {}
+        self._last_category_scroll = None
+        self._last_category_key = None
+        self._last_subsystem_scroll = None
+        self._last_subsystem_key = None
 
         self.sm = ScreenManager(transition=SlideTransition(duration=0.2))
         for name in ("welcome", "disclaimer", "home", "subsystem", "category", "detail", 
@@ -497,6 +499,9 @@ class JuniorDoctor(App):
             self.nav_bar.opacity = 0
             self.nav_bar.disabled = True
 
+        if name in ("home", "welcome"):
+            self.current_back_action = None
+
         if name == "home" and prev != "home":
             Clock.schedule_once(lambda dt: self.check_and_show_updates(), 0.5)
             Clock.schedule_once(lambda dt: self.check_and_show_announcement(), 0.8)
@@ -506,7 +511,17 @@ class JuniorDoctor(App):
             if self.current_back_action is not None:
                 self.current_back_action()
                 return True
-            return False
+            else:
+                from kivy.utils import platform
+                if platform == 'android':
+                    try:
+                        from jnius import autoclass
+                        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+                        PythonActivity.mActivity.finish()
+                    except Exception as e:
+                        print(f"Finish error: {e}")
+                self.stop()
+                return True
         return False
 
     def contact_developer(self):
@@ -1153,8 +1168,7 @@ class JuniorDoctor(App):
         main_layout.add_widget(scroll)
         screen.add_widget(main_layout)
         self.go("note_edit")
-
-    # ================= HOME =================
+            # ================= HOME =================
     def build_home(self):
         screen = self.sm.get_screen("home")
         screen.clear_widgets()
@@ -1469,8 +1483,18 @@ class JuniorDoctor(App):
         self.go("topic_search")
         Clock.schedule_once(lambda dt: setattr(search_input, 'focus', True), 0.3)
 
+    # ================= SCROLL MEMORY HELPER =================
+    def _save_current_scroll_position(self):
+        cur = self.sm.current
+        if cur == "category" and self._last_category_scroll is not None and self._last_category_key is not None:
+            spec, sub = self._last_category_key
+            self.scroll_positions[("category", spec, sub)] = self._last_category_scroll.scroll_y
+        elif cur == "subsystem" and self._last_subsystem_scroll is not None and self._last_subsystem_key is not None:
+            self.scroll_positions[("subsystem", self._last_subsystem_key)] = self._last_subsystem_scroll.scroll_y
+
     # ================= NAVIGATION =================
     def open_specialty(self, specialty):
+        self._save_current_scroll_position()
         subsystems = DATA[specialty]
         if len(subsystems) == 1 and "General" in subsystems:
             self.open_category(specialty, "General")
@@ -1499,9 +1523,18 @@ class JuniorDoctor(App):
         scroll.add_widget(content)
         main_layout.add_widget(scroll)
         screen.add_widget(main_layout)
+
+        self._last_subsystem_key = specialty
+        self._last_subsystem_scroll = scroll
+        saved_key = ("subsystem", specialty)
+        if saved_key in self.scroll_positions:
+            saved_y = self.scroll_positions[saved_key]
+            Clock.schedule_once(lambda dt: setattr(scroll, 'scroll_y', saved_y), 0.1)
+
         self.go("subsystem")
 
     def open_category(self, specialty, subsystem):
+        self._save_current_scroll_position()
         screen = self.sm.get_screen("category")
         screen.clear_widgets()
         main_layout = BoxLayout(orientation="vertical", padding=dp(0), spacing=dp(0))
@@ -1547,9 +1580,18 @@ class JuniorDoctor(App):
         scroll.add_widget(content)
         main_layout.add_widget(scroll)
         screen.add_widget(main_layout)
+
+        self._last_category_key = (specialty, subsystem)
+        self._last_category_scroll = scroll
+        saved_key = ("category", specialty, subsystem)
+        if saved_key in self.scroll_positions:
+            saved_y = self.scroll_positions[saved_key]
+            Clock.schedule_once(lambda dt: setattr(scroll, 'scroll_y', saved_y), 0.1)
+
         self.go("category")
 
     def open_detail(self, specialty, topic):
+        self._save_current_scroll_position()
         if specialty in ("Clinical Calculators", "Pediatric Calculators"):
             self.open_calculator(specialty, topic)
             return
@@ -1650,72 +1692,69 @@ class JuniorDoctor(App):
         screen.add_widget(main_layout)
         self.go("detail")
 
+    # ================= CALCULATOR (with EDD / GA date pickers) =================
     def open_calculator(self, specialty, topic):
         import calendar
-    
+
         if specialty == "Pediatric Calculators":
             calc = data_pediatric_calculators.PEDIATRIC_CALCULATOR_DEFINITIONS.get(topic)
         else:
             calc = data_calculators.CALCULATOR_DEFINITIONS.get(topic)
-    
+
         if not calc:
             self.show_message_popup("Error", f"Calculator '{topic}' not found.")
             return
-    
+
         subsystem_found = "General"
         for sub, calcs in DATA[specialty].items():
             if topic in calcs:
                 subsystem_found = sub
                 break
-    
+
         screen = self.sm.get_screen("detail")
         screen.clear_widgets()
         main_layout = BoxLayout(orientation="vertical", padding=dp(0), spacing=dp(0))
         self.current_back_action = lambda: self.open_category(specialty, subsystem_found)
         main_layout.add_widget(ModernHeader(topic, "CALCULATOR", bg_color=HEADER_NAVY))
-    
+
         scroll = ScrollView(do_scroll_x=False)
         content = BoxLayout(orientation="vertical", spacing=dp(15), size_hint_y=None,
                             padding=[dp(20), dp(10), dp(20), dp(40)])
         content.bind(minimum_height=content.setter("height"))
-    
-        # ---- Description ----
+
         dcard = Card(bg=CARD_BLUE, padding=15)
         dcard.add_widget(make_wrapped_label("Description", 14, NAVY, bold=True))
         dcard.add_widget(make_wrapped_label(calc.get("description", ""), 13, TEXT))
         content.add_widget(dcard)
-    
-        # ---- Formula ----
+
         fcard = Card(bg=CARD_PURPLE, padding=15)
         fcard.add_widget(make_wrapped_label("Formula", 14, NAVY, bold=True))
         fcard.add_widget(make_wrapped_label(calc.get("formula_text", ""), 13, TEXT))
         content.add_widget(fcard)
-    
-        # ---- Detect calculator type ----
+
         calc_type = calc.get("calc_type", "")
         if not calc_type:
             t_low = topic.lower()
             if "delivery" in t_low or "edd" in t_low:
                 calc_type = "edd"
-            elif "gestational" in t_low or " ga " in t_low or t_low.startswith("ga"):
+            elif "gestational" in t_low:
                 calc_type = "ga"
             else:
                 calc_type = "numeric"
-    
+
         is_date_calc = (calc.get("kind") == "date_range") or (calc_type in ("edd", "ga"))
-    
+
         fields = {}
         spinner_refs = {}
-    
+
         if is_date_calc:
-            # ============ DATE-RANGE CALCULATOR (EDD / GA) ============
             today = datetime.date.today()
-    
+
             def build_date_picker(title, default_date, min_year_offset, max_year_offset):
                 card = Card(bg=WHITE, padding=15)
                 card.add_widget(make_wrapped_label(title, 13, NAVY, bold=True))
                 row = BoxLayout(size_hint_y=None, height=dp(58), spacing=dp(8))
-    
+
                 day_sp = Spinner(
                     text=str(default_date.day),
                     values=[str(i) for i in range(1, 32)],
@@ -1744,12 +1783,12 @@ class JuniorDoctor(App):
                     background_color=get_color_from_hex(INPUT_BG),
                     color=get_color_from_hex(TEXT),
                 )
-    
+
                 row.add_widget(day_sp)
                 row.add_widget(month_sp)
                 row.add_widget(year_sp)
                 card.add_widget(row)
-    
+
                 def refresh_days(*_):
                     try:
                         m = int(month_sp.text)
@@ -1763,28 +1802,26 @@ class JuniorDoctor(App):
                             day_sp.text = str(min(default_date.day, last))
                     except Exception:
                         pass
-    
+
                 month_sp.bind(text=refresh_days)
                 year_sp.bind(text=refresh_days)
                 return card, day_sp, month_sp, year_sp
-    
-            # Today's date
+
             today_card, t_day, t_month, t_year = build_date_picker(
-                "📅 Today's Date", today, -1, 0
+                "Today's Date", today, -1, 0
             )
             content.add_widget(today_card)
-    
-            # LMP date
+
             lmp_card, l_day, l_month, l_year = build_date_picker(
-                "🗓️ First Day of Last Menstrual Period (LMP)", today, -2, 0
+                "First Day of Last Menstrual Period (LMP)", today, -2, 0
             )
             content.add_widget(lmp_card)
-    
+
             spinner_refs = {
                 "t_day": t_day, "t_month": t_month, "t_year": t_year,
                 "l_day": l_day, "l_month": l_month, "l_year": l_year,
             }
-    
+
             result_card = Card(bg=SUCCESS_BG, padding=15)
             result_card.add_widget(make_wrapped_label("Result", 14, TEAL, bold=True))
             result_label = make_wrapped_label(
@@ -1792,9 +1829,8 @@ class JuniorDoctor(App):
             )
             result_card.add_widget(result_label)
             content.add_widget(result_card)
-    
+
         else:
-            # ============ NUMERIC CALCULATOR ============
             inputs_card = Card(bg=WHITE, padding=15)
             inputs_card.add_widget(make_wrapped_label("Input Values", 14, NAVY, bold=True))
             for field_def in calc["fields"]:
@@ -1817,7 +1853,7 @@ class JuniorDoctor(App):
                 inputs_card.add_widget(fl)
                 fields[key] = inp
             content.add_widget(inputs_card)
-    
+
             result_card = Card(bg=SUCCESS_BG, padding=15)
             result_card.add_widget(make_wrapped_label("Result", 14, TEAL, bold=True))
             result_label = make_wrapped_label(
@@ -1825,14 +1861,12 @@ class JuniorDoctor(App):
             )
             result_card.add_widget(result_label)
             content.add_widget(result_card)
-    
-        # ---- Interpretation ----
+
         interp_card = Card(bg=INFO_BG, padding=15)
         interp_card.add_widget(make_wrapped_label("Interpretation", 14, NAVY, bold=True))
         interp_card.add_widget(make_wrapped_label(calc.get("interpretation", ""), 13, TEXT))
         content.add_widget(interp_card)
-    
-        # ---- Calculate button ----
+
         def calculate(*_):
             try:
                 if is_date_calc:
@@ -1846,41 +1880,41 @@ class JuniorDoctor(App):
                         int(spinner_refs["l_month"].text),
                         int(spinner_refs["l_day"].text)
                     )
-    
+
                     if l_date > t_date:
-                        result_label.text = "⚠️ Error: LMP date cannot be after today's date."
+                        result_label.text = "Error: LMP date cannot be after today's date."
                         result_label.color = get_color_from_hex(RED)
                         return
-    
+
                     total_days = (t_date - l_date).days
                     weeks = total_days // 7
                     days_extra = total_days % 7
                     edd = l_date + datetime.timedelta(days=280)
                     days_remaining = (edd - t_date).days
-    
+
                     if days_remaining < 0:
                         remaining_str = f"Overdue by {abs(days_remaining)} days"
                     else:
                         remaining_str = f"{days_remaining} days remaining"
-    
+
                     if calc_type == "edd":
                         result_label.text = (
-                            f"📅 Expected Date of Delivery (EDD):\n"
+                            f"Expected Date of Delivery (EDD):\n"
                             f"   {edd.strftime('%d %B %Y')}\n\n"
-                            f"⏳ {remaining_str}\n"
-                            f"👶 Current GA: {weeks} weeks + {days_extra} days\n"
-                            f"📆 Days since LMP: {total_days}"
+                            f"{remaining_str}\n"
+                            f"Current GA: {weeks} weeks + {days_extra} days\n"
+                            f"Days since LMP: {total_days}"
                         )
                     else:
                         result_label.text = (
-                            f"👶 Gestational Age:\n"
+                            f"Gestational Age:\n"
                             f"   {weeks} weeks + {days_extra} days\n\n"
-                            f"📆 Total days since LMP: {total_days}\n"
-                            f"📅 Expected EDD: {edd.strftime('%d %B %Y')}\n"
-                            f"⏳ {remaining_str}"
+                            f"Total days since LMP: {total_days}\n"
+                            f"Expected EDD: {edd.strftime('%d %B %Y')}\n"
+                            f"{remaining_str}"
                         )
                     result_label.color = get_color_from_hex(TEAL)
-    
+
                 else:
                     values = {k: float(inp.text.strip()) for k, inp in fields.items()}
                     result = eval(
@@ -1891,32 +1925,31 @@ class JuniorDoctor(App):
                     result = round(result, 2)
                     result_label.text = f"Result: {result} {calc.get('unit', '')}"
                     result_label.color = get_color_from_hex(TEAL)
-    
+
             except ValueError:
-                result_label.text = "⚠️ Invalid input. Please check values."
+                result_label.text = "Invalid input. Please check values."
                 result_label.color = get_color_from_hex(RED)
             except ZeroDivisionError:
-                result_label.text = "⚠️ Division by zero error."
+                result_label.text = "Division by zero error."
                 result_label.color = get_color_from_hex(RED)
             except Exception as e:
-                result_label.text = f"⚠️ Error: {str(e)}"
+                result_label.text = f"Error: {str(e)}"
                 result_label.color = get_color_from_hex(RED)
-    
+
         calc_btn = JDButton("CALCULATE", bg=TEAL, height=52, radius=16, font_size=16)
         calc_btn.bind(on_release=calculate)
         content.add_widget(calc_btn)
-    
-        # ---- Reference ----
+
         ref_card = Card(bg=WHITE, padding=15)
         ref_card.add_widget(make_wrapped_label("Reference", 13, MUTED, bold=True))
         ref_card.add_widget(make_wrapped_label(calc.get("reference", ""), 12, MUTED))
         content.add_widget(ref_card)
-    
+
         scroll.add_widget(content)
         main_layout.add_widget(scroll)
         screen.add_widget(main_layout)
         self.go("detail")
-    
+
 
 if __name__ == "__main__":
     try:
@@ -1924,8 +1957,8 @@ if __name__ == "__main__":
     except Exception:
         import traceback
         error_text = traceback.format_exc()
-        print(error_text) 
-        
+        print(error_text)
+
         from kivy.app import App
         from kivy.uix.label import Label
         from kivy.uix.scrollview import ScrollView
