@@ -479,7 +479,7 @@ class JuniorDoctor(App):
     def go(self, name):
         prev = self.sm.current
         self.sm.current = name
-        
+
         if name in ("home", "favorites", "notes", "settings"):
             self.nav_bar.height = dp(70)
             self.nav_bar.opacity = 1
@@ -489,6 +489,9 @@ class JuniorDoctor(App):
             self.nav_bar.height = 0
             self.nav_bar.opacity = 0
             self.nav_bar.disabled = True
+
+        if name in ("home", "welcome"):
+            self.current_back_action = None
 
         if name == "home" and prev != "home":
             Clock.schedule_once(lambda dt: self.check_and_show_updates(), 0.5)
