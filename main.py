@@ -44,6 +44,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.switch import Switch
+from kivy.uix.spinner import Spinner
 from kivy.uix.popup import Popup
 from kivy.uix.dropdown import DropDown
 from kivy.uix.image import AsyncImage
@@ -62,40 +63,7 @@ try:
 except:
     print("Warning: arabic.ttf not found. Arabic text might not display correctly.")
 
-# ★ إضافة الحاسبتين الجديدتين (EDD و GA) إلى قواميس data_calculators ★
-_new_ob_calcs = ["Expected Day of Delivery (EDD)", "Gestational Age (GA)"]
-for _cal in _new_ob_calcs:
-    if _cal not in data_calculators.CALCULATORS_DATA["Clinical Calculators"]["General"]:
-        data_calculators.CALCULATORS_DATA["Clinical Calculators"]["General"].append(_cal)
 
-data_calculators.CALCULATOR_DEFINITIONS.update({
-    "Expected Day of Delivery (EDD)": {
-        "description": "Estimates the number of days remaining until the Estimated Date of Delivery (EDD), based on the Last Menstrual Period (LMP). Uses Naegele's Rule (LMP + 280 days / 40 weeks).",
-        "fields": [
-            {"key": "weeks", "label": "Weeks since LMP (0-42)", "placeholder": "e.g., 20"},
-            {"key": "days", "label": "Additional days since LMP (0-6)", "placeholder": "e.g., 3"}
-        ],
-        "formula_text": "Days to delivery = 280 - (Weeks × 7 + Days)",
-        "formula": "280 - (weeks * 7 + days)",
-        "unit": "days",
-        "interpretation": "This is the number of days remaining until the Estimated Date of Delivery (EDD).\n\n• Add this number to today's date to get the EDD.\n• Full term: 37-42 weeks (259-294 days).\n• Naegele's Rule: EDD = LMP + 280 days (40 weeks).\n• Ultrasound dating is more accurate if LMP is uncertain or cycles are irregular.",
-        "reference": "Naegele's Rule. ACOG Committee Opinion No. 700 (2017) - Methods for Estimating the Due Date."
-    },
-    "Gestational Age (GA)": {
-        "description": "Calculates the current Gestational Age (GA) based on the Last Menstrual Period (LMP). The result represents total days of pregnancy, which can be converted to weeks and days.",
-        "fields": [
-            {"key": "weeks", "label": "Completed weeks since LMP (0-42)", "placeholder": "e.g., 20"},
-            {"key": "days", "label": "Additional days since LMP (0-6)", "placeholder": "e.g., 3"}
-        ],
-        "formula_text": "GA (days) = (Weeks × 7) + Days",
-        "formula": "weeks * 7 + days",
-        "unit": "days",
-        "interpretation": "Current Gestational Age in days.\n\n• Divide by 7 to get weeks and days.\n\n[b]Trimesters:[/b]\n• 1st: 0-13 weeks.\n• 2nd: 14-27 weeks.\n• 3rd: 28+ weeks.\n\n[b]Classification:[/b]\n• Preterm: < 37 weeks.\n• Early term: 37-38 weeks.\n• Full term: 39-40 weeks.\n• Late term: 41 weeks.\n• Post-term: ≥ 42 weeks.",
-        "reference": "ACOG Committee Opinion No. 700 (2017) - Methods for Estimating the Due Date."
-    }
-})
-
-# ================= دمج البيانات =================
 
 # ================= دمج البيانات =================
 DATA = {}
@@ -1683,104 +1651,272 @@ class JuniorDoctor(App):
         self.go("detail")
 
     def open_calculator(self, specialty, topic):
+        import calendar
+    
         if specialty == "Pediatric Calculators":
             calc = data_pediatric_calculators.PEDIATRIC_CALCULATOR_DEFINITIONS.get(topic)
         else:
             calc = data_calculators.CALCULATOR_DEFINITIONS.get(topic)
-
+    
         if not calc:
             self.show_message_popup("Error", f"Calculator '{topic}' not found.")
             return
-
+    
         subsystem_found = "General"
         for sub, calcs in DATA[specialty].items():
             if topic in calcs:
                 subsystem_found = sub
                 break
-
+    
         screen = self.sm.get_screen("detail")
         screen.clear_widgets()
         main_layout = BoxLayout(orientation="vertical", padding=dp(0), spacing=dp(0))
         self.current_back_action = lambda: self.open_category(specialty, subsystem_found)
         main_layout.add_widget(ModernHeader(topic, "CALCULATOR", bg_color=HEADER_NAVY))
-
+    
         scroll = ScrollView(do_scroll_x=False)
         content = BoxLayout(orientation="vertical", spacing=dp(15), size_hint_y=None,
                             padding=[dp(20), dp(10), dp(20), dp(40)])
         content.bind(minimum_height=content.setter("height"))
-
+    
+        # ---- Description ----
         dcard = Card(bg=CARD_BLUE, padding=15)
         dcard.add_widget(make_wrapped_label("Description", 14, NAVY, bold=True))
-        dcard.add_widget(make_wrapped_label(calc["description"], 13, TEXT))
+        dcard.add_widget(make_wrapped_label(calc.get("description", ""), 13, TEXT))
         content.add_widget(dcard)
-
+    
+        # ---- Formula ----
         fcard = Card(bg=CARD_PURPLE, padding=15)
         fcard.add_widget(make_wrapped_label("Formula", 14, NAVY, bold=True))
-        fcard.add_widget(make_wrapped_label(calc["formula_text"], 13, TEXT))
+        fcard.add_widget(make_wrapped_label(calc.get("formula_text", ""), 13, TEXT))
         content.add_widget(fcard)
-
+    
+        # ---- Detect calculator type ----
+        calc_type = calc.get("calc_type", "")
+        if not calc_type:
+            t_low = topic.lower()
+            if "delivery" in t_low or "edd" in t_low:
+                calc_type = "edd"
+            elif "gestational" in t_low or " ga " in t_low or t_low.startswith("ga"):
+                calc_type = "ga"
+            else:
+                calc_type = "numeric"
+    
+        is_date_calc = (calc.get("kind") == "date_range") or (calc_type in ("edd", "ga"))
+    
         fields = {}
-        inputs_card = Card(bg=WHITE, padding=15)
-        inputs_card.add_widget(make_wrapped_label("Input Values", 14, NAVY, bold=True))
-        for field_def in calc["fields"]:
-            key = field_def["key"]
-            fl = BoxLayout(orientation="vertical", size_hint_y=None, height=dp(80), spacing=dp(5))
-            fl.add_widget(make_wrapped_label(field_def["label"], 13, TEXT, bold=True))
-            inp = TextInput(hint_text=field_def.get("placeholder", ""), multiline=False,
-                            font_size=sp(15), size_hint_y=None, height=dp(45),
-                            background_color=get_color_from_hex(INPUT_BG),
-                            foreground_color=get_color_from_hex(TEXT),
-                            cursor_color=get_color_from_hex(BLUE),
-                            padding=[dp(10), dp(10), dp(10), dp(10)])
-            fl.add_widget(inp)
-            inputs_card.add_widget(fl)
-            fields[key] = inp
-        content.add_widget(inputs_card)
-
-        result_card = Card(bg=SUCCESS_BG, padding=15)
-        result_card.add_widget(make_wrapped_label("Result", 14, TEAL, bold=True))
-        result_label = make_wrapped_label("Tap 'CALCULATE' to see the result.", 15, TEXT, bold=True)
-        result_card.add_widget(result_label)
-        content.add_widget(result_card)
-
+        spinner_refs = {}
+    
+        if is_date_calc:
+            # ============ DATE-RANGE CALCULATOR (EDD / GA) ============
+            today = datetime.date.today()
+    
+            def build_date_picker(title, default_date, min_year_offset, max_year_offset):
+                card = Card(bg=WHITE, padding=15)
+                card.add_widget(make_wrapped_label(title, 13, NAVY, bold=True))
+                row = BoxLayout(size_hint_y=None, height=dp(58), spacing=dp(8))
+    
+                day_sp = Spinner(
+                    text=str(default_date.day),
+                    values=[str(i) for i in range(1, 32)],
+                    size_hint=(0.30, 1),
+                    font_size=sp(16),
+                    background_normal="",
+                    background_color=get_color_from_hex(INPUT_BG),
+                    color=get_color_from_hex(TEXT),
+                )
+                month_sp = Spinner(
+                    text=str(default_date.month),
+                    values=[str(i) for i in range(1, 13)],
+                    size_hint=(0.30, 1),
+                    font_size=sp(16),
+                    background_normal="",
+                    background_color=get_color_from_hex(INPUT_BG),
+                    color=get_color_from_hex(TEXT),
+                )
+                year_sp = Spinner(
+                    text=str(default_date.year),
+                    values=[str(y) for y in range(today.year + min_year_offset,
+                                                  today.year + max_year_offset + 1)],
+                    size_hint=(0.40, 1),
+                    font_size=sp(16),
+                    background_normal="",
+                    background_color=get_color_from_hex(INPUT_BG),
+                    color=get_color_from_hex(TEXT),
+                )
+    
+                row.add_widget(day_sp)
+                row.add_widget(month_sp)
+                row.add_widget(year_sp)
+                card.add_widget(row)
+    
+                def refresh_days(*_):
+                    try:
+                        m = int(month_sp.text)
+                        y = int(year_sp.text)
+                        last = calendar.monthrange(y, m)[1]
+                        day_sp.values = [str(i) for i in range(1, last + 1)]
+                        try:
+                            if int(day_sp.text) > last:
+                                day_sp.text = str(last)
+                        except ValueError:
+                            day_sp.text = str(min(default_date.day, last))
+                    except Exception:
+                        pass
+    
+                month_sp.bind(text=refresh_days)
+                year_sp.bind(text=refresh_days)
+                return card, day_sp, month_sp, year_sp
+    
+            # Today's date
+            today_card, t_day, t_month, t_year = build_date_picker(
+                "📅 Today's Date", today, -1, 0
+            )
+            content.add_widget(today_card)
+    
+            # LMP date
+            lmp_card, l_day, l_month, l_year = build_date_picker(
+                "🗓️ First Day of Last Menstrual Period (LMP)", today, -2, 0
+            )
+            content.add_widget(lmp_card)
+    
+            spinner_refs = {
+                "t_day": t_day, "t_month": t_month, "t_year": t_year,
+                "l_day": l_day, "l_month": l_month, "l_year": l_year,
+            }
+    
+            result_card = Card(bg=SUCCESS_BG, padding=15)
+            result_card.add_widget(make_wrapped_label("Result", 14, TEAL, bold=True))
+            result_label = make_wrapped_label(
+                "Select the LMP date then tap 'CALCULATE'.", 14, TEXT, bold=True
+            )
+            result_card.add_widget(result_label)
+            content.add_widget(result_card)
+    
+        else:
+            # ============ NUMERIC CALCULATOR ============
+            inputs_card = Card(bg=WHITE, padding=15)
+            inputs_card.add_widget(make_wrapped_label("Input Values", 14, NAVY, bold=True))
+            for field_def in calc["fields"]:
+                key = field_def["key"]
+                fl = BoxLayout(orientation="vertical", size_hint_y=None,
+                               height=dp(80), spacing=dp(5))
+                fl.add_widget(make_wrapped_label(field_def["label"], 13, TEXT, bold=True))
+                inp = TextInput(
+                    hint_text=field_def.get("placeholder", ""),
+                    multiline=False,
+                    font_size=sp(15),
+                    size_hint_y=None,
+                    height=dp(45),
+                    background_color=get_color_from_hex(INPUT_BG),
+                    foreground_color=get_color_from_hex(TEXT),
+                    cursor_color=get_color_from_hex(BLUE),
+                    padding=[dp(10), dp(10), dp(10), dp(10)]
+                )
+                fl.add_widget(inp)
+                inputs_card.add_widget(fl)
+                fields[key] = inp
+            content.add_widget(inputs_card)
+    
+            result_card = Card(bg=SUCCESS_BG, padding=15)
+            result_card.add_widget(make_wrapped_label("Result", 14, TEAL, bold=True))
+            result_label = make_wrapped_label(
+                "Tap 'CALCULATE' to see the result.", 15, TEXT, bold=True
+            )
+            result_card.add_widget(result_label)
+            content.add_widget(result_card)
+    
+        # ---- Interpretation ----
         interp_card = Card(bg=INFO_BG, padding=15)
         interp_card.add_widget(make_wrapped_label("Interpretation", 14, NAVY, bold=True))
-        interp_card.add_widget(make_wrapped_label(calc["interpretation"], 13, TEXT))
+        interp_card.add_widget(make_wrapped_label(calc.get("interpretation", ""), 13, TEXT))
         content.add_widget(interp_card)
-
+    
+        # ---- Calculate button ----
         def calculate(*_):
             try:
-                values = {k: float(inp.text.strip()) for k, inp in fields.items()}
-                result = eval(calc["formula"],
-                              {"__builtins__": {"min": min, "max": max, "abs": abs, "round": round}},
-                              values)
-                result = round(result, 2)
-                result_label.text = f"Result: {result} {calc.get('unit', '')}"
-                result_label.color = get_color_from_hex(TEAL)
+                if is_date_calc:
+                    t_date = datetime.date(
+                        int(spinner_refs["t_year"].text),
+                        int(spinner_refs["t_month"].text),
+                        int(spinner_refs["t_day"].text)
+                    )
+                    l_date = datetime.date(
+                        int(spinner_refs["l_year"].text),
+                        int(spinner_refs["l_month"].text),
+                        int(spinner_refs["l_day"].text)
+                    )
+    
+                    if l_date > t_date:
+                        result_label.text = "⚠️ Error: LMP date cannot be after today's date."
+                        result_label.color = get_color_from_hex(RED)
+                        return
+    
+                    total_days = (t_date - l_date).days
+                    weeks = total_days // 7
+                    days_extra = total_days % 7
+                    edd = l_date + datetime.timedelta(days=280)
+                    days_remaining = (edd - t_date).days
+    
+                    if days_remaining < 0:
+                        remaining_str = f"Overdue by {abs(days_remaining)} days"
+                    else:
+                        remaining_str = f"{days_remaining} days remaining"
+    
+                    if calc_type == "edd":
+                        result_label.text = (
+                            f"📅 Expected Date of Delivery (EDD):\n"
+                            f"   {edd.strftime('%d %B %Y')}\n\n"
+                            f"⏳ {remaining_str}\n"
+                            f"👶 Current GA: {weeks} weeks + {days_extra} days\n"
+                            f"📆 Days since LMP: {total_days}"
+                        )
+                    else:
+                        result_label.text = (
+                            f"👶 Gestational Age:\n"
+                            f"   {weeks} weeks + {days_extra} days\n\n"
+                            f"📆 Total days since LMP: {total_days}\n"
+                            f"📅 Expected EDD: {edd.strftime('%d %B %Y')}\n"
+                            f"⏳ {remaining_str}"
+                        )
+                    result_label.color = get_color_from_hex(TEAL)
+    
+                else:
+                    values = {k: float(inp.text.strip()) for k, inp in fields.items()}
+                    result = eval(
+                        calc["formula"],
+                        {"__builtins__": {"min": min, "max": max, "abs": abs, "round": round}},
+                        values
+                    )
+                    result = round(result, 2)
+                    result_label.text = f"Result: {result} {calc.get('unit', '')}"
+                    result_label.color = get_color_from_hex(TEAL)
+    
             except ValueError:
-                result_label.text = "Invalid input. Enter numbers only."
+                result_label.text = "⚠️ Invalid input. Please check values."
                 result_label.color = get_color_from_hex(RED)
             except ZeroDivisionError:
-                result_label.text = "Division by zero error."
+                result_label.text = "⚠️ Division by zero error."
                 result_label.color = get_color_from_hex(RED)
             except Exception as e:
-                result_label.text = f"Error: {str(e)}"
+                result_label.text = f"⚠️ Error: {str(e)}"
                 result_label.color = get_color_from_hex(RED)
-
+    
         calc_btn = JDButton("CALCULATE", bg=TEAL, height=52, radius=16, font_size=16)
         calc_btn.bind(on_release=calculate)
         content.add_widget(calc_btn)
-
+    
+        # ---- Reference ----
         ref_card = Card(bg=WHITE, padding=15)
         ref_card.add_widget(make_wrapped_label("Reference", 13, MUTED, bold=True))
-        ref_card.add_widget(make_wrapped_label(calc["reference"], 12, MUTED))
+        ref_card.add_widget(make_wrapped_label(calc.get("reference", ""), 12, MUTED))
         content.add_widget(ref_card)
-
+    
         scroll.add_widget(content)
         main_layout.add_widget(scroll)
         screen.add_widget(main_layout)
         self.go("detail")
-
+    
 
 if __name__ == "__main__":
     try:
