@@ -503,7 +503,10 @@ class JuniorDoctor(App):
             if self.current_back_action is not None:
                 self.current_back_action()
                 return True
-            return False
+            else:
+                # ★ التعديل: عند الضغط على زر الرجوع بدون إجراء، اخرج من التطبيق ★
+                self.stop()
+                return True
         return False
 
     def contact_developer(self):
@@ -830,7 +833,6 @@ class JuniorDoctor(App):
             popup.open()
         except Exception as e:
             print(f"Popup error: {e}")
-
     def open_settings(self):
         screen = self.sm.get_screen("settings")
         screen.clear_widgets()
