@@ -370,20 +370,55 @@ class JuniorDoctor(App):
         except Exception as e:
             print(f"Updater error: {e}")
 
+        # ★ المنطق الذكي: حماية المواضيع الأصلية وحذف المواضيع المحملة فقط ★
+        prev_downloaded_map = {}
+        try:
+            prev_map_file = os.path.join(self.user_data_dir, "downloaded_topics_map.json")
+            if os.path.exists(prev_map_file):
+                with open(prev_map_file, 'r', encoding='utf-8') as f:
+                    prev_downloaded_map = json.load(f)
+        except Exception as e:
+            print(f"Error loading prev map: {e}")
+
         if downloaded_topics:
+            new_downloaded_map = {}
+            
+            # 1. إضافة وتحديث مواضيع GitHub
             for spec_name, subs in downloaded_topics.items():
                 if spec_name not in DATA:
                     DATA[spec_name] = {}
+                new_downloaded_map[spec_name] = {}
+                
                 for sub_name, topics in subs.items():
                     if sub_name not in DATA[spec_name]:
                         DATA[spec_name][sub_name] = []
+                    new_downloaded_map[spec_name][sub_name] = list(topics.keys())
+                    
                     for topic_name, topic_content in topics.items():
                         if topic_name not in DATA[spec_name][sub_name]:
                             DATA[spec_name][sub_name].insert(0, topic_name)
-                        formatted_content = []
-                        for item in topic_content:
-                            formatted_content.append(tuple(item) if isinstance(item, list) else item)
+                        formatted_content = [
+                            tuple(item) if isinstance(item, list) else item
+                            for item in topic_content
+                        ]
                         TOPIC_PAGES[(spec_name, topic_name)] = formatted_content
+            
+            # 2. حذف المواضيع التي كانت محملة سابقاً واختفت من GitHub
+            for spec_name, subs in prev_downloaded_map.items():
+                for sub_name, old_topics in subs.items():
+                    new_topics_list = new_downloaded_map.get(spec_name, {}).get(sub_name, [])
+                    for old_topic in old_topics:
+                        if old_topic not in new_topics_list:
+                            if spec_name in DATA and sub_name in DATA[spec_name]:
+                                if old_topic in DATA[spec_name][sub_name]:
+                                    DATA[spec_name][sub_name].remove(old_topic)
+            
+            # 3. حفظ سجل المواضيع المحملة الجديد
+            try:
+                with open(prev_map_file, 'w', encoding='utf-8') as f:
+                    json.dump(new_downloaded_map, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                print(f"Error saving map: {e}")
 
         Window.bind(on_keyboard=self.on_keyboard)
         self.current_back_action = None
@@ -403,7 +438,6 @@ class JuniorDoctor(App):
         self.build_welcome()
         self.build_disclaimer()
         
-        # ★ التحقق مما إذا كان المستخدم قد شاهد الشاشات الترحيبية سابقاً ★
         if self.settings.get("has_seen_welcome", False):
             self.go("home")
         else:
@@ -574,7 +608,6 @@ class JuniorDoctor(App):
             points_card.add_widget(row)
         content.add_widget(points_card)
 
-        # ★ عند الضغط على الزر، نحفظ أن المستخدم قرأ الشاشات ★
         def accept_disclaimer(*_):
             self.settings["has_seen_welcome"] = True
             self.save_settings(self.settings)
@@ -742,9 +775,10 @@ class JuniorDoctor(App):
 
             new_topics = []
             updated_topics = []
+            removed_topics = []
             
             for t in topics:
-                clean_t = t.replace("✨", "").replace("🔄", "").strip()
+                clean_t = t.replace("✨", "").replace("🔄", "").replace("🗑️", "").strip()
                 
                 if "Current Notice" in clean_t or "App Announcement" in clean_t:
                     continue
@@ -753,10 +787,12 @@ class JuniorDoctor(App):
                     new_topics.append(clean_t.replace("NEW:", "").strip())
                 elif "UPDATED:" in clean_t:
                     updated_topics.append(clean_t.replace("UPDATED:", "").strip())
+                elif "REMOVED:" in clean_t:
+                    removed_topics.append(clean_t.replace("REMOVED:", "").strip())
                 else:
                     new_topics.append(clean_t)
 
-            if not new_topics and not updated_topics:
+            if not new_topics and not updated_topics and not removed_topics:
                 return
 
             content = BoxLayout(orientation="vertical", padding=dp(15), spacing=dp(10))
@@ -767,10 +803,20 @@ class JuniorDoctor(App):
             list_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
             list_layout.bind(minimum_height=list_layout.setter("height"))
             
-            for t in new_topics:
-                list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
-            for t in updated_topics:
-                list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
+            if new_topics:
+                list_layout.add_widget(make_wrapped_label("✨ New Topics", 13, "#2DD4BF", bold=True))
+                for t in new_topics:
+                    list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
+            
+            if updated_topics:
+                list_layout.add_widget(make_wrapped_label("🔄 Updated Topics", 13, "#60A5FA", bold=True))
+                for t in updated_topics:
+                    list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
+                    
+            if removed_topics:
+                list_layout.add_widget(make_wrapped_label("🗑️ Removed Topics", 13, "#F87171", bold=True))
+                for t in removed_topics:
+                    list_layout.add_widget(make_wrapped_label(f"- {t}", 14, "#FFFFFF"))
                 
             scroll.add_widget(list_layout)
             content.add_widget(scroll)
