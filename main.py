@@ -62,6 +62,41 @@ try:
 except:
     print("Warning: arabic.ttf not found. Arabic text might not display correctly.")
 
+# ★ إضافة الحاسبتين الجديدتين (EDD و GA) إلى قواميس data_calculators ★
+_new_ob_calcs = ["Expected Day of Delivery (EDD)", "Gestational Age (GA)"]
+for _cal in _new_ob_calcs:
+    if _cal not in data_calculators.CALCULATORS_DATA["Clinical Calculators"]["General"]:
+        data_calculators.CALCULATORS_DATA["Clinical Calculators"]["General"].append(_cal)
+
+data_calculators.CALCULATOR_DEFINITIONS.update({
+    "Expected Day of Delivery (EDD)": {
+        "description": "Estimates the number of days remaining until the Estimated Date of Delivery (EDD), based on the Last Menstrual Period (LMP). Uses Naegele's Rule (LMP + 280 days / 40 weeks).",
+        "fields": [
+            {"key": "weeks", "label": "Weeks since LMP (0-42)", "placeholder": "e.g., 20"},
+            {"key": "days", "label": "Additional days since LMP (0-6)", "placeholder": "e.g., 3"}
+        ],
+        "formula_text": "Days to delivery = 280 - (Weeks × 7 + Days)",
+        "formula": "280 - (weeks * 7 + days)",
+        "unit": "days",
+        "interpretation": "This is the number of days remaining until the Estimated Date of Delivery (EDD).\n\n• Add this number to today's date to get the EDD.\n• Full term: 37-42 weeks (259-294 days).\n• Naegele's Rule: EDD = LMP + 280 days (40 weeks).\n• Ultrasound dating is more accurate if LMP is uncertain or cycles are irregular.",
+        "reference": "Naegele's Rule. ACOG Committee Opinion No. 700 (2017) - Methods for Estimating the Due Date."
+    },
+    "Gestational Age (GA)": {
+        "description": "Calculates the current Gestational Age (GA) based on the Last Menstrual Period (LMP). The result represents total days of pregnancy, which can be converted to weeks and days.",
+        "fields": [
+            {"key": "weeks", "label": "Completed weeks since LMP (0-42)", "placeholder": "e.g., 20"},
+            {"key": "days", "label": "Additional days since LMP (0-6)", "placeholder": "e.g., 3"}
+        ],
+        "formula_text": "GA (days) = (Weeks × 7) + Days",
+        "formula": "weeks * 7 + days",
+        "unit": "days",
+        "interpretation": "Current Gestational Age in days.\n\n• Divide by 7 to get weeks and days.\n\n[b]Trimesters:[/b]\n• 1st: 0-13 weeks.\n• 2nd: 14-27 weeks.\n• 3rd: 28+ weeks.\n\n[b]Classification:[/b]\n• Preterm: < 37 weeks.\n• Early term: 37-38 weeks.\n• Full term: 39-40 weeks.\n• Late term: 41 weeks.\n• Post-term: ≥ 42 weeks.",
+        "reference": "ACOG Committee Opinion No. 700 (2017) - Methods for Estimating the Due Date."
+    }
+})
+
+# ================= دمج البيانات =================
+
 # ================= دمج البيانات =================
 DATA = {}
 DATA.update(data_medical.MEDICAL_DATA)
@@ -370,6 +405,7 @@ class JuniorDoctor(App):
         except Exception as e:
             print(f"Updater error: {e}")
 
+        # ★ المنطق الذكي: حماية المواضيع الأصلية وحذف المواضيع المحملة فقط ★
         prev_downloaded_map = {}
         try:
             prev_map_file = os.path.join(self.user_data_dir, "downloaded_topics_map.json")
@@ -382,6 +418,7 @@ class JuniorDoctor(App):
         if downloaded_topics:
             new_downloaded_map = {}
             
+            # 1. إضافة وتحديث مواضيع GitHub
             for spec_name, subs in downloaded_topics.items():
                 if spec_name not in DATA:
                     DATA[spec_name] = {}
@@ -401,6 +438,7 @@ class JuniorDoctor(App):
                         ]
                         TOPIC_PAGES[(spec_name, topic_name)] = formatted_content
             
+            # 2. حذف المواضيع التي كانت محملة سابقاً واختفت من GitHub
             for spec_name, subs in prev_downloaded_map.items():
                 for sub_name, old_topics in subs.items():
                     new_topics_list = new_downloaded_map.get(spec_name, {}).get(sub_name, [])
@@ -410,6 +448,7 @@ class JuniorDoctor(App):
                                 if old_topic in DATA[spec_name][sub_name]:
                                     DATA[spec_name][sub_name].remove(old_topic)
             
+            # 3. حفظ سجل المواضيع المحملة الجديد
             try:
                 with open(prev_map_file, 'w', encoding='utf-8') as f:
                     json.dump(new_downloaded_map, f, ensure_ascii=False, indent=2)
@@ -479,7 +518,7 @@ class JuniorDoctor(App):
     def go(self, name):
         prev = self.sm.current
         self.sm.current = name
-
+        
         if name in ("home", "favorites", "notes", "settings"):
             self.nav_bar.height = dp(70)
             self.nav_bar.opacity = 1
@@ -490,9 +529,6 @@ class JuniorDoctor(App):
             self.nav_bar.opacity = 0
             self.nav_bar.disabled = True
 
-        if name in ("home", "welcome"):
-            self.current_back_action = None
-
         if name == "home" and prev != "home":
             Clock.schedule_once(lambda dt: self.check_and_show_updates(), 0.5)
             Clock.schedule_once(lambda dt: self.check_and_show_announcement(), 0.8)
@@ -502,17 +538,7 @@ class JuniorDoctor(App):
             if self.current_back_action is not None:
                 self.current_back_action()
                 return True
-            else:
-                from kivy.utils import platform
-                if platform == 'android':
-                    try:
-                        from jnius import autoclass
-                        PythonActivity = autoclass('org.kivy.android.PythonActivity')
-                        PythonActivity.mActivity.finish()
-                    except Exception as e:
-                        print(f"Finish error: {e}")
-                self.stop()
-                return True
+            return False
         return False
 
     def contact_developer(self):
@@ -839,6 +865,7 @@ class JuniorDoctor(App):
             popup.open()
         except Exception as e:
             print(f"Popup error: {e}")
+
     def open_settings(self):
         screen = self.sm.get_screen("settings")
         screen.clear_widgets()
