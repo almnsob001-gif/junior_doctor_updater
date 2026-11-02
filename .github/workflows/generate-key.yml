@@ -1,0 +1,18 @@
+name: Generate Keystore
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Keystore file
+        run: |
+          keytool -genkey -v -keystore juniordoc.keystore -alias juniordoc -keyalg RSA -keysize 2048 -validity 10000 -storepass 'O737092261p#' -keypass 'O737092261p#' -dname "CN=Almnsob, OU=Developer, O=JuniorMedHub, L=Sanaa, ST=Sanaa, C=YE"
+          
+      - name: Upload Keystore
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-keystore-file
+          path: juniordoc.keystore
