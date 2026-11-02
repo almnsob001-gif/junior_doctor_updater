@@ -1930,6 +1930,39 @@ class JuniorDoctor(App):
         self.go("detail")
 
     # ================= BACKGROUND UPDATE SYSTEM =================
+    def _cleanup_orphaned_favorites(self):
+        """يحذف من المفضلات أي موضوع لم يعد موجوداً في DATA."""
+        try:
+            favs = self.load_favorites()
+            if not favs:
+                return 0
+
+            cleaned = []
+            removed_count = 0
+            for entry in favs:
+                if not isinstance(entry, list) or len(entry) != 2:
+                    continue
+                spec, topic = entry
+                exists = False
+                if spec in DATA:
+                    for sub, topics in DATA[spec].items():
+                        if topic in topics:
+                            exists = True
+                            break
+                if exists:
+                    cleaned.append([spec, topic])
+                else:
+                    removed_count += 1
+
+            if removed_count > 0:
+                self.save_favorites(cleaned)
+                print(f"[favorites] Removed {removed_count} orphaned favorite(s)")
+
+            return removed_count
+        except Exception as e:
+            print(f"Cleanup favorites error: {e}")
+            return 0
+
     def _merge_downloaded_topics(self, downloaded_topics, prev_downloaded_map):
         """يدمج المواضيع المحملة في DATA ويحذف ما اختفى من GitHub."""
         new_downloaded_map = {}
@@ -2004,7 +2037,7 @@ class JuniorDoctor(App):
 
             current_ver = 0.0 if force else 1.0
 
-            # ★ إصلاح: نستخدم النسخة المتزامنة وننتظر حتى ينتهي التحميل فعلياً
+            # ★ نستخدم النسخة المتزامنة وننتظر حتى ينتهي التحميل فعلياً
             if hasattr(data_updater, "check_for_updates_blocking"):
                 data_updater.check_for_updates_blocking(
                     self.user_data_dir, current_version=current_ver
@@ -2065,7 +2098,12 @@ class JuniorDoctor(App):
             except Exception as e:
                 print(f"Merge error: {e}")
 
-        # ★ إصلاح: لو في رسالة خطأ من data_updater، نعتبرها فشلاً في Force Refresh
+        # ★ جديد: تنظيف Favorites من المواضيع المحذوفة
+        try:
+            self._cleanup_orphaned_favorites()
+        except Exception as e:
+            print(f"Cleanup call error: {e}")
+
         if error and getattr(self, "_update_source", "initial") == "settings":
             self._finish_update(failed=True, error_detail=error)
             return
