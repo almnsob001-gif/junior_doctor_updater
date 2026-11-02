@@ -1,0 +1,65 @@
+# ============================================================
+# Junior Doctor — .gitignore
+# ============================================================
+
+# ---------- Keystore (CRITICAL — never commit!) ----------
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key
+keystore/
+release/
+*.aab
+
+# ---------- Kivy / Buildozer ----------
+bin/
+.buildozer/
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# ---------- Android SDK/NDK ----------
+android-sdk/
+android-ndk/
+
+# ---------- Sensitive data ----------
+.env
+secrets.json
+*.secret
+config.local.*
+
+# ---------- OS files ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- IDE ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# ---------- Logs / temp ----------
+*.log
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# ---------- Local test data ----------
+test_data/
+scratch/
+sandbox/
+
+# ---------- Python virtual environments ----------
+venv/
+env/
+ENV/
+.venv/
