@@ -63,7 +63,6 @@ try:
 except:
     print("Warning: arabic.ttf not found. Arabic text might not display correctly.")
 
-
 # ================= دمج البيانات =================
 DATA = {}
 DATA.update(data_medical.MEDICAL_DATA)
@@ -363,13 +362,11 @@ class JuniorDoctor(App):
         apply_theme(self.settings.get("theme", "light"))
         Window.clearcolor = get_color_from_hex(BG_COLOR)
 
-        # ★ معدّل: تهيئة حالة التحديث (بدون طلب شبكة الآن)
         self.update_error_message = None
         self._update_in_progress = False
         self._update_source = "initial"
         self._loading_popup = None
 
-        # ★ معدّل: تحميل من الكاش أولاً (بدون إنترنت)
         downloaded_topics = None
         try:
             downloaded_topics = data_updater.load_downloaded_data(self.user_data_dir)
@@ -386,14 +383,12 @@ class JuniorDoctor(App):
         except Exception as e:
             print(f"Error loading prev map: {e}")
 
-        # ★ معدّل: دمج عبر دالة مساعدة (الدالة موجودة في Part 2)
         if downloaded_topics:
             self._merge_downloaded_topics(downloaded_topics, prev_downloaded_map)
 
         Window.bind(on_keyboard=self.on_keyboard)
         self.current_back_action = None
 
-        # ذاكرة مواضع التمرير
         self.scroll_positions = {}
         self._last_category_scroll = None
         self._last_category_key = None
@@ -420,7 +415,6 @@ class JuniorDoctor(App):
         else:
             self.go("welcome")
 
-        # ★ معدّل: جدولة فحص التحديثات في الخلفية بعد أن تظهر الشاشة
         Clock.schedule_once(lambda dt: self._start_update_check(show_overlay=True, source="initial"), 0.8)
 
         return self.main_container
@@ -463,7 +457,7 @@ class JuniorDoctor(App):
     def go(self, name):
         prev = self.sm.current
         self.sm.current = name
-        
+
         if name in ("home", "favorites", "notes", "settings"):
             self.nav_bar.height = dp(70)
             self.nav_bar.opacity = 1
@@ -668,7 +662,7 @@ class JuniorDoctor(App):
             content.add_widget(make_wrapped_label(message, 14, TEXT))
             btn = JDButton("OK", bg=BLUE, height=45, radius=12, font_size=14)
             content.add_widget(btn)
-            popup = Popup(title=title, content=content, size_hint=(0.9, 0.45),
+            popup = Popup(title=title, content=content, size_hint=(0.9, 0.55),
                           background_color=get_color_from_hex(SURFACE),
                           title_color=get_color_from_hex(NAVY))
             btn.bind(on_release=lambda *_: popup.dismiss())
@@ -854,7 +848,6 @@ class JuniorDoctor(App):
         ann_card.add_widget(ann_btn)
         content.add_widget(ann_card)
 
-        # ★ جديد: بطاقة Force Refresh
         refresh_card = Card(bg=CARD_BLUE, padding=15)
         refresh_card.add_widget(make_wrapped_label("Force Refresh", 14, NAVY, bold=True))
         refresh_card.add_widget(make_wrapped_label(
@@ -2009,7 +2002,33 @@ class JuniorDoctor(App):
                         except Exception:
                             pass
 
-            data_updater.check_for_updates(self.user_data_dir, current_version=1.0)
+            current_ver = 0.0 if force else 1.0
+
+            # ★ إصلاح: نستخدم النسخة المتزامنة وننتظر حتى ينتهي التحميل فعلياً
+            if hasattr(data_updater, "check_for_updates_blocking"):
+                data_updater.check_for_updates_blocking(
+                    self.user_data_dir, current_version=current_ver
+                )
+            else:
+                data_updater.check_for_updates(
+                    self.user_data_dir, current_version=current_ver
+                )
+                import time
+                for _ in range(30):
+                    time.sleep(0.5)
+                    err_p = os.path.join(self.user_data_dir, "update_error.txt")
+                    ver_p = os.path.join(self.user_data_dir, "last_version.txt")
+                    if os.path.exists(err_p):
+                        break
+                    try:
+                        if os.path.exists(ver_p):
+                            with open(ver_p, 'r') as f:
+                                v = float(f.read().strip())
+                            if v > 0:
+                                break
+                    except Exception:
+                        pass
+
             error = data_updater.get_error_message(self.user_data_dir)
             downloaded_topics = data_updater.load_downloaded_data(self.user_data_dir)
 
@@ -2018,8 +2037,14 @@ class JuniorDoctor(App):
                 0
             )
         except Exception as e:
-            print(f"Update thread error: {e}")
-            Clock.schedule_once(lambda dt: self._finish_update(failed=True), 0)
+            err_detail = f"{type(e).__name__}: {e}"
+            print(f"Update thread error: {err_detail}")
+            import traceback
+            traceback.print_exc()
+            Clock.schedule_once(
+                lambda dt: self._finish_update(failed=True, error_detail=err_detail),
+                0
+            )
 
     def _apply_update_results(self, downloaded_topics, error):
         """يعمل في الخيط الرئيسي — يدمج النتائج."""
@@ -2040,25 +2065,38 @@ class JuniorDoctor(App):
             except Exception as e:
                 print(f"Merge error: {e}")
 
+        # ★ إصلاح: لو في رسالة خطأ من data_updater، نعتبرها فشلاً في Force Refresh
+        if error and getattr(self, "_update_source", "initial") == "settings":
+            self._finish_update(failed=True, error_detail=error)
+            return
+
         self._finish_update()
 
-    def _finish_update(self, failed=False):
+    def _finish_update(self, failed=False, error_detail=""):
         """يُستدعى بعد انتهاء التحديث."""
         self._hide_loading_overlay()
         self._update_in_progress = False
 
-        if self.sm.current in ("home", "welcome", "disclaimer"):
-            try:
-                self.build_home()
-            except Exception as e:
-                print(f"Rebuild home error: {e}")
+        saved_back_action = self.current_back_action
+        saved_screen = self.sm.current
+
+        try:
+            self.build_home()
+        except Exception as e:
+            print(f"Rebuild home error: {e}")
+
+        if saved_screen not in ("home", "welcome", "disclaimer"):
+            self.current_back_action = saved_back_action
 
         source = getattr(self, "_update_source", "initial")
 
         if source == "settings":
             if failed:
-                self.show_message_popup("Refresh Failed",
-                                        "Could not update. Please check your internet connection and try again.")
+                msg = "Could not update."
+                if error_detail:
+                    msg += f"\n\nTechnical details:\n{error_detail}"
+                msg += "\n\nCheck your internet connection and try again."
+                self.show_message_popup("Refresh Failed", msg)
             else:
                 self.show_message_popup("Refresh Complete",
                                         "Latest content has been loaded successfully.")
