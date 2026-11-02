@@ -1,4 +1,4 @@
-name: Build Release AAB
+name: Build APK
 
 on:
   push:
@@ -30,22 +30,12 @@ jobs:
         sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
         pip install --upgrade buildozer "cython<3"
 
-    # 1. استخراج المفتاح السري وتحويله إلى ملف
-    - name: Create Keystore
+    - name: Build APK
       run: |
-        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
+        buildozer -v android debug
 
-    # 2. بناء نسخة AAB الموقعة (تمرير كلمة المرور والاسم)
-    - name: Build Release AAB
-      env:
-        keystore_alias: ${{ secrets.KEYSTORE_ALIAS }}
-        keystore_password: ${{ secrets.KEYSTORE_PASSWORD }}
-      run: |
-        buildozer -v android release
-
-    # 3. رفع ملف AAB الناتج
-    - name: Upload AAB
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: JuniorDoctor-Release-AAB
-        path: bin/*.aab
+        name: JuniorDoctor-APK
+        path: bin/*.apk
