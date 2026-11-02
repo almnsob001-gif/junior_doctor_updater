@@ -1,13 +1,14 @@
 # ============================================================
-# data_updater.py — نسخة نهائية مع إصلاح SSL على أندرويد
+# data_updater.py — نسخة نهائية مع إصلاح SSL + نسخة متزامنة
 # ------------------------------------------------------------
 # الإصلاحات:
-#   1. استخدام certifi لشهادات CA (أندرويد لا يملك مخزن شهادات)
-#   2. التحقق الكامل من شهادة SSL (بدون CERT_NONE)
-#   3. الاستبدال الكامل بدل الدمج (الحذف من GitHub ينتقل للهاتف)
-#   4. إلغاء fallback expanduser("~")
-#   5. تسجيل الحذف في سجل التحديثات (🗑️ REMOVED)
+#   1. استخدام certifi لشهادات CA
+#   2. التحقق الكامل من شهادة SSL
+#   3. الاستبدال الكامل بدل الدمج
+#   4. إلغاء fallback expanduser
+#   5. تسجيل الحذف في سجل التحديثات (REMOVED)
 #   6. رفض التحديث كلياً إذا فشل أي ملف
+#   7. ★ جديد: check_for_updates_blocking للـ Force Refresh ★
 # ============================================================
 import os
 import json
@@ -16,7 +17,6 @@ import urllib.request
 import threading
 import concurrent.futures
 
-# ★ إصلاح SSL على أندرويد: توجيه Python لاستخدام شهادات certifi ★
 try:
     import certifi
     os.environ['SSL_CERT_FILE'] = certifi.where()
@@ -145,17 +145,17 @@ def _background_update_worker(user_data_dir, current_version):
                 for topic, content in topics.items():
                     old_content = old_data.get(spec, {}).get(sub, {}).get(topic)
                     if old_content is None:
-                        updated_log.append(f"✨ NEW: {topic}")
+                        updated_log.append(f"NEW: {topic}")
                     elif old_content != content:
-                        updated_log.append(f"🔄 UPDATED: {topic}")
+                        updated_log.append(f"UPDATED: {topic}")
         # المحذوفات
         for spec, subs in old_data.items():
             for sub, topics in subs.items():
                 for topic in topics:
                     if topic not in new_data.get(spec, {}).get(sub, {}):
-                        updated_log.append(f"🗑️ REMOVED: {topic}")
+                        updated_log.append(f"REMOVED: {topic}")
 
-        # 6) ★ الاستبدال الكامل ★
+        # 6) الاستبدال الكامل
         tmp = data_path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
             json.dump(new_data, f, ensure_ascii=False, indent=2)
@@ -199,10 +199,19 @@ def _background_update_worker(user_data_dir, current_version):
 # الواجهة العامة
 # ------------------------------------------------------------
 def check_for_updates(user_data_dir, current_version=1.0):
+    """نسخة غير متزامنة — ترجع فوراً. استخدمها عند فتح التطبيق."""
     t = threading.Thread(target=_background_update_worker,
                          args=(user_data_dir, current_version))
     t.daemon = True
     t.start()
+
+
+def check_for_updates_blocking(user_data_dir, current_version=1.0):
+    """
+    ★ جديد: نسخة متزامنة — تنتظر حتى ينتهي التحميل.
+    استخدمها من داخل خيط في main.py (Force Refresh).
+    """
+    _background_update_worker(user_data_dir, current_version)
 
 
 def get_error_message(user_data_dir):
