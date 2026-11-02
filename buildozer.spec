@@ -22,15 +22,6 @@ android.orientation = portrait
 android.private_storage = True
 android.allow_backup = False
 
-# ==========================================
-# إعدادات التوقيع للنشر (Google Play AAB)
-# ==========================================
-android.release_artifact = aab
-android.keystore_path = release.keystore
-android.keystore_alias = %(keystore_alias)s
-android.keystore_passwd = %(keystore_password)s
-android.keystore_alias_passwd = %(keystore_password)s
-
 [buildozer]
 warn_on_root = 0
 log_level = 2
