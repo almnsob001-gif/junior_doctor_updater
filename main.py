@@ -363,14 +363,19 @@ class JuniorDoctor(App):
         apply_theme(self.settings.get("theme", "light"))
         Window.clearcolor = get_color_from_hex(BG_COLOR)
 
+        # ★ معدّل: تهيئة حالة التحديث (بدون طلب شبكة الآن)
         self.update_error_message = None
+        self._update_in_progress = False
+        self._update_source = "initial"
+        self._loading_popup = None
+
+        # ★ معدّل: تحميل من الكاش أولاً (بدون إنترنت)
         downloaded_topics = None
         try:
-            data_updater.check_for_updates(self.user_data_dir, current_version=1.0)
-            self.update_error_message = data_updater.get_error_message(self.user_data_dir)
             downloaded_topics = data_updater.load_downloaded_data(self.user_data_dir)
+            self.update_error_message = data_updater.get_error_message(self.user_data_dir)
         except Exception as e:
-            print(f"Updater error: {e}")
+            print(f"Cached data load error: {e}")
 
         prev_downloaded_map = {}
         try:
@@ -381,47 +386,14 @@ class JuniorDoctor(App):
         except Exception as e:
             print(f"Error loading prev map: {e}")
 
+        # ★ معدّل: دمج عبر دالة مساعدة (الدالة موجودة في Part 2)
         if downloaded_topics:
-            new_downloaded_map = {}
-            
-            for spec_name, subs in downloaded_topics.items():
-                if spec_name not in DATA:
-                    DATA[spec_name] = {}
-                new_downloaded_map[spec_name] = {}
-                
-                for sub_name, topics in subs.items():
-                    if sub_name not in DATA[spec_name]:
-                        DATA[spec_name][sub_name] = []
-                    new_downloaded_map[spec_name][sub_name] = list(topics.keys())
-                    
-                    for topic_name, topic_content in topics.items():
-                        if topic_name not in DATA[spec_name][sub_name]:
-                            DATA[spec_name][sub_name].insert(0, topic_name)
-                        formatted_content = [
-                            tuple(item) if isinstance(item, list) else item
-                            for item in topic_content
-                        ]
-                        TOPIC_PAGES[(spec_name, topic_name)] = formatted_content
-            
-            for spec_name, subs in prev_downloaded_map.items():
-                for sub_name, old_topics in subs.items():
-                    new_topics_list = new_downloaded_map.get(spec_name, {}).get(sub_name, [])
-                    for old_topic in old_topics:
-                        if old_topic not in new_topics_list:
-                            if spec_name in DATA and sub_name in DATA[spec_name]:
-                                if old_topic in DATA[spec_name][sub_name]:
-                                    DATA[spec_name][sub_name].remove(old_topic)
-            
-            try:
-                with open(prev_map_file, 'w', encoding='utf-8') as f:
-                    json.dump(new_downloaded_map, f, ensure_ascii=False, indent=2)
-            except Exception as e:
-                print(f"Error saving map: {e}")
+            self._merge_downloaded_topics(downloaded_topics, prev_downloaded_map)
 
         Window.bind(on_keyboard=self.on_keyboard)
         self.current_back_action = None
 
-        # ★ جديد: ذاكرة مواضع التمرير
+        # ذاكرة مواضع التمرير
         self.scroll_positions = {}
         self._last_category_scroll = None
         self._last_category_key = None
@@ -447,7 +419,10 @@ class JuniorDoctor(App):
             self.go("home")
         else:
             self.go("welcome")
-            
+
+        # ★ معدّل: جدولة فحص التحديثات في الخلفية بعد أن تظهر الشاشة
+        Clock.schedule_once(lambda dt: self._start_update_check(show_overlay=True, source="initial"), 0.8)
+
         return self.main_container
 
     def build_bottom_nav(self):
@@ -878,6 +853,17 @@ class JuniorDoctor(App):
         ann_btn.bind(on_release=lambda *_: self.check_and_show_announcement(force=True))
         ann_card.add_widget(ann_btn)
         content.add_widget(ann_card)
+
+        # ★ جديد: بطاقة Force Refresh
+        refresh_card = Card(bg=CARD_BLUE, padding=15)
+        refresh_card.add_widget(make_wrapped_label("Force Refresh", 14, NAVY, bold=True))
+        refresh_card.add_widget(make_wrapped_label(
+            "Re-download all content from the server. "
+            "Use this if new topics are not appearing.", 12, TEXT))
+        refresh_btn = JDButton("Force Refresh Now", bg=BLUE, height=48, radius=12, font_size=14)
+        refresh_btn.bind(on_release=lambda *_: self._force_refresh())
+        refresh_card.add_widget(refresh_btn)
+        content.add_widget(refresh_card)
 
         contact_card = Card(bg=CARD_GREEN, padding=15)
         contact_card.add_widget(make_wrapped_label("Feedback & Support", 14, NAVY, bold=True))
@@ -1949,6 +1935,189 @@ class JuniorDoctor(App):
         main_layout.add_widget(scroll)
         screen.add_widget(main_layout)
         self.go("detail")
+
+    # ================= BACKGROUND UPDATE SYSTEM =================
+    def _merge_downloaded_topics(self, downloaded_topics, prev_downloaded_map):
+        """يدمج المواضيع المحملة في DATA ويحذف ما اختفى من GitHub."""
+        new_downloaded_map = {}
+
+        for spec_name, subs in downloaded_topics.items():
+            if spec_name not in DATA:
+                DATA[spec_name] = {}
+            new_downloaded_map[spec_name] = {}
+
+            for sub_name, topics in subs.items():
+                if sub_name not in DATA[spec_name]:
+                    DATA[spec_name][sub_name] = []
+                new_downloaded_map[spec_name][sub_name] = list(topics.keys())
+
+                for topic_name, topic_content in topics.items():
+                    if topic_name not in DATA[spec_name][sub_name]:
+                        DATA[spec_name][sub_name].insert(0, topic_name)
+                    formatted_content = [
+                        tuple(item) if isinstance(item, list) else item
+                        for item in topic_content
+                    ]
+                    TOPIC_PAGES[(spec_name, topic_name)] = formatted_content
+
+        for spec_name, subs in prev_downloaded_map.items():
+            for sub_name, old_topics in subs.items():
+                new_topics_list = new_downloaded_map.get(spec_name, {}).get(sub_name, [])
+                for old_topic in old_topics:
+                    if old_topic not in new_topics_list:
+                        if spec_name in DATA and sub_name in DATA[spec_name]:
+                            if old_topic in DATA[spec_name][sub_name]:
+                                DATA[spec_name][sub_name].remove(old_topic)
+
+        try:
+            prev_map_file = os.path.join(self.user_data_dir, "downloaded_topics_map.json")
+            with open(prev_map_file, 'w', encoding='utf-8') as f:
+                json.dump(new_downloaded_map, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Error saving map: {e}")
+
+    def _start_update_check(self, show_overlay=True, force=False, source="initial"):
+        """يبدأ فحص التحديثات في خيط منفصل."""
+        if getattr(self, "_update_in_progress", False):
+            if source == "settings":
+                self.show_message_popup("Please Wait", "An update is already in progress.")
+            return
+
+        self._update_in_progress = True
+        self._update_source = source
+
+        if show_overlay:
+            self._show_loading_overlay("Checking for updates...")
+
+        import threading
+        threading.Thread(
+            target=self._run_update_thread,
+            args=(force,),
+            daemon=True
+        ).start()
+
+    def _run_update_thread(self, force):
+        """يعمل في خيط منفصل — لا تلمس UI من هنا."""
+        try:
+            if force:
+                for fn in ("downloaded_data.json", "last_version.txt",
+                           "latest_updates.json", "update_error.txt"):
+                    fp = os.path.join(self.user_data_dir, fn)
+                    if os.path.exists(fp):
+                        try:
+                            os.remove(fp)
+                        except Exception:
+                            pass
+
+            data_updater.check_for_updates(self.user_data_dir, current_version=1.0)
+            error = data_updater.get_error_message(self.user_data_dir)
+            downloaded_topics = data_updater.load_downloaded_data(self.user_data_dir)
+
+            Clock.schedule_once(
+                lambda dt: self._apply_update_results(downloaded_topics, error),
+                0
+            )
+        except Exception as e:
+            print(f"Update thread error: {e}")
+            Clock.schedule_once(lambda dt: self._finish_update(failed=True), 0)
+
+    def _apply_update_results(self, downloaded_topics, error):
+        """يعمل في الخيط الرئيسي — يدمج النتائج."""
+        self.update_error_message = error
+
+        if downloaded_topics:
+            prev_downloaded_map = {}
+            try:
+                prev_map_file = os.path.join(self.user_data_dir, "downloaded_topics_map.json")
+                if os.path.exists(prev_map_file):
+                    with open(prev_map_file, 'r', encoding='utf-8') as f:
+                        prev_downloaded_map = json.load(f)
+            except Exception:
+                pass
+
+            try:
+                self._merge_downloaded_topics(downloaded_topics, prev_downloaded_map)
+            except Exception as e:
+                print(f"Merge error: {e}")
+
+        self._finish_update()
+
+    def _finish_update(self, failed=False):
+        """يُستدعى بعد انتهاء التحديث."""
+        self._hide_loading_overlay()
+        self._update_in_progress = False
+
+        if self.sm.current in ("home", "welcome", "disclaimer"):
+            try:
+                self.build_home()
+            except Exception as e:
+                print(f"Rebuild home error: {e}")
+
+        source = getattr(self, "_update_source", "initial")
+
+        if source == "settings":
+            if failed:
+                self.show_message_popup("Refresh Failed",
+                                        "Could not update. Please check your internet connection and try again.")
+            else:
+                self.show_message_popup("Refresh Complete",
+                                        "Latest content has been loaded successfully.")
+        elif not failed:
+            Clock.schedule_once(lambda dt: self.check_and_show_updates(), 0.5)
+            Clock.schedule_once(lambda dt: self.check_and_show_announcement(), 0.8)
+
+    def _show_loading_overlay(self, message="Loading..."):
+        """يعرض نافذة انتظار."""
+        try:
+            if hasattr(self, "_loading_popup") and self._loading_popup:
+                return
+
+            content = BoxLayout(orientation="vertical", padding=dp(20), spacing=dp(15))
+            content.add_widget(Label(
+                text=message,
+                font_size=sp(16),
+                color=get_color_from_hex(WHITE),
+                bold=True,
+                size_hint_y=None,
+                height=dp(40),
+                halign="center",
+                valign="middle"
+            ))
+            content.add_widget(Label(
+                text="Please wait...",
+                font_size=sp(13),
+                color=get_color_from_hex("#94A3B8"),
+                size_hint_y=None,
+                height=dp(30),
+                halign="center",
+                valign="middle"
+            ))
+
+            self._loading_popup = Popup(
+                title="",
+                content=content,
+                size_hint=(0.75, 0.28),
+                background_color=get_color_from_hex(HEADER_NAVY),
+                title_color=get_color_from_hex(WHITE),
+                auto_dismiss=False,
+                separator_color=get_color_from_hex(HEADER_NAVY)
+            )
+            self._loading_popup.open()
+        except Exception as e:
+            print(f"Show loading error: {e}")
+
+    def _hide_loading_overlay(self):
+        """يخفي نافذة الانتظار."""
+        try:
+            if hasattr(self, "_loading_popup") and self._loading_popup:
+                self._loading_popup.dismiss()
+                self._loading_popup = None
+        except Exception as e:
+            print(f"Hide loading error: {e}")
+
+    def _force_refresh(self):
+        """زر Force Refresh — من Settings."""
+        self._start_update_check(show_overlay=True, force=True, source="settings")
 
 
 if __name__ == "__main__":
